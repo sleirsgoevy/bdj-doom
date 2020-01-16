@@ -196,4 +196,12 @@ public class MyXlet implements Xlet, UserEventListener
             return 0;
         return ((Integer)ans).intValue();
     }
+    public static Class getclass()
+    {
+        return MyXlet.class;
+    }
+    public static OutputStream getStdout()
+    {
+        return new MessagesOutputStream(instance.messages, instance.scene);
+    }
 }

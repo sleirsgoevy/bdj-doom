@@ -1,10 +1,20 @@
 #include <org/homebrew.h>
-#include <math.h>
+#include <stdio.h>
+#include <stddef.h>
 
 int data[576*324];
 
+int Helper_main(int argc, char** argv);
+FILE* open_console();
+
 int main()
 {
+    fclose(stdout);
+    stdout = open_console();
+    fclose(stderr);
+    stderr = stdout;
+    char* doom_argv[] = {"doom", NULL};
+    Helper_main(1, doom_argv);
     //double h0 = sqrt(576*576+324*324);
     int q = 0;
     int color_change_speed = 0;

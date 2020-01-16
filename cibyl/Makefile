@@ -7,7 +7,7 @@ build:
 	mkdir build
 
 build/main: build include/cibyl-syscalls.db src/*.c
-	../../cibyl/mips-cibyl-elf/bin/mips-cibyl-elf-gcc --std=gnu99 -I include src/*.c -O1 -lm -o build/main
+	../../cibyl/mips-cibyl-elf/bin/mips-cibyl-elf-gcc --std=gnu99 -DNORMALUNIX -I include src/*.c src/doom/*.c -O1 -lm -o build/main
 
 build/classes: build build/main include/cibyl-syscalls.db
 	rm -rf build/classes build/classes0
@@ -18,3 +18,6 @@ build/classes: build build/main include/cibyl-syscalls.db
 	{ echo 'package org.homebrew;'; cat build/classes0/CRunTime.java; } > build/classes0/org/homebrew/CRunTime.java
 	rm build/classes0/CRunTime.java
 	mv build/classes0 build/classes
+
+clean:
+	rm -rf build include/org include/cibyl-syscalls.db
