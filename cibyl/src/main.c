@@ -6,9 +6,25 @@ int data[576*324];
 int main()
 {
     //double h0 = sqrt(576*576+324*324);
-    for(int frame = 0;; frame++)
+    int q = 0;
+    int color_change_speed = 0;
+    for(;;)
     {
-        int q = frame % 768, qr, qg, qb;
+        int key;
+        while((key = NOPH_MyXlet_pollInput()))
+            switch(key)
+            {
+            case 37: // left arrow
+            case -39:
+                color_change_speed = (color_change_speed + 767) % 768;
+                break;
+            case 39: // right arrow
+            case -37:
+                color_change_speed = (color_change_speed + 1) % 768;
+                break;
+            }
+        q = (q + color_change_speed) % 768;
+        int qr, qg, qb;
         if(q < 256)
         {
             qr = 256 - q;

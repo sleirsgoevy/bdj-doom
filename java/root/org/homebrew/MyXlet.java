@@ -26,6 +26,30 @@ import org.dvb.ui.DVBBufferedImage;
 public class MyXlet implements Xlet, UserEventListener
 {
     private static MyXlet instance;
+    private class EventQueue
+    {
+        private LinkedList l;
+        int cnt = 0;
+        EventQueue()
+        {
+            l = new LinkedList();
+        }
+        public synchronized void put(Object obj)
+        {
+            l.addLast(obj);
+            cnt++;
+        }
+        public synchronized Object get()
+        {
+            if(cnt == 0)
+                return null;
+            Object o = l.getFirst();
+            l.removeFirst();
+            cnt--;
+            return o;
+        }
+    }
+    private EventQueue eq;
     private HScene scene;
     private Screen gui;
     private XletContext context;
@@ -34,6 +58,7 @@ public class MyXlet implements Xlet, UserEventListener
     {
         instance = this;
         this.context = context;
+        this.eq = new EventQueue();
         // START: Code required for text output.
         scene = HSceneFactory.getInstance().getDefaultHScene();
         try
@@ -122,6 +147,10 @@ public class MyXlet implements Xlet, UserEventListener
     }
     public void userEventReceived(UserEvent evt)
     {
+        if(evt.getType() == HRcEvent.KEY_PRESSED)
+            eq.put(new Integer((int)evt.getCode()));
+        else if(evt.getType() == HRcEvent.KEY_RELEASED)
+            eq.put(new Integer(-(int)evt.getCode()));
         // kept as an API reference
         /*messages.add("some event");
         if(evt.getType() == HRcEvent.KEY_PRESSED)
@@ -159,5 +188,12 @@ public class MyXlet implements Xlet, UserEventListener
     public static void repaint()
     {
         instance.scene.repaint();
+    }
+    public static int pollInput()
+    {
+        Object ans = instance.eq.get();
+        if(ans == null)
+            return 0;
+        return ((Integer)ans).intValue();
     }
 }
