@@ -17,7 +17,7 @@ static int access(const char* fn, int mode)
 static char* getenv(const char* name)
 {
     if(!strcmp(name, "DOOMWADDIR"))
-        return "resource://";
+        return "mem:resource://";
     if(!strcmp(name, "HOME"))
         return "/home/fake";
     return NULL;

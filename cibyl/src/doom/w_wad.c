@@ -300,17 +300,23 @@ void W_Reload (void)
 //  does override all earlier ones.
 //
 void W_InitMultipleFiles (char** filenames)
-{	
+{
+    fprintf(stderr, "xyu\n");
     int		size;
     
     // open all the files, load headers, and count lumps
+    fprintf(stderr, "xyu\n");
     numlumps = 0;
 
     // will be realloced as lumps are added
+    fprintf(stderr, "xyu\n");
     lumpinfo = malloc(1);	
 
     for ( ; *filenames ; filenames++)
+    {
+        fprintf(stderr, "xyu\n");
 	W_AddFile (*filenames);
+    }
 
     if (!numlumps)
 	I_Error ("W_InitFiles: no files found");

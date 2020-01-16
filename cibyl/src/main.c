@@ -5,14 +5,12 @@
 int data[576*324];
 
 int Helper_main(int argc, char** argv);
-FILE* open_console();
 
 int main()
 {
-    fclose(stdout);
-    stdout = open_console();
-    fclose(stderr);
-    stderr = stdout;
+    fprintf(stdout, "test stdout\n");
+    fprintf(stderr, "test stderr\n");
+    printf("test printf\n");
     char* doom_argv[] = {"doom", NULL};
     Helper_main(1, doom_argv);
     //double h0 = sqrt(576*576+324*324);

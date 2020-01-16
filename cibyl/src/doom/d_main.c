@@ -869,7 +869,7 @@ void D_DoomMain (void)
 		 VERSION/100,VERSION%100);
 	break;
     }
-    
+
     printf ("%s\n",title);
 
     if (devparm)
@@ -901,7 +901,7 @@ void D_DoomMain (void)
 	sidemove[0] = sidemove[0]*scale/100;
 	sidemove[1] = sidemove[1]*scale/100;
     }
-    
+
     // add any files specified on the command line with -file wadfile
     // to the wad list
     //
@@ -935,7 +935,7 @@ void D_DoomMain (void)
 	}
 	D_AddFile (file);
     }
-	
+
     p = M_CheckParm ("-file");
     if (p)
     {
@@ -963,8 +963,7 @@ void D_DoomMain (void)
     startepisode = 1;
     startmap = 1;
     autostart = false;
-
-		
+    fprintf(stderr, "xyu0\n");
     p = M_CheckParm ("-skill");
     if (p && p < myargc-1)
     {
@@ -1007,18 +1006,19 @@ void D_DoomMain (void)
 	}
 	autostart = true;
     }
-    
+    fprintf(stderr, "xyu1\n");
     // init subsystems
     printf ("V_Init: allocate screens.\n");
     V_Init ();
-
+    fprintf(stderr, "xyu2\n");
     printf ("M_LoadDefaults: Load system defaults.\n");
     M_LoadDefaults ();              // load before initing other systems
-
+    fprintf(stderr, "xyu3\n");
     printf ("Z_Init: Init zone memory allocation daemon. \n");
     Z_Init ();
-
+    fprintf(stderr, "xyu4\n");
     printf ("W_Init: Init WADfiles.\n");
+    fprintf(stderr, "xyu5\n");
     W_InitMultipleFiles (wadfiles);
     
 

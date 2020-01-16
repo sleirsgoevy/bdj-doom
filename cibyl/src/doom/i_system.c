@@ -78,7 +78,9 @@ int  I_GetHeapSize (void)
 byte* I_ZoneBase (int*	size)
 {
     *size = mb_used*1024*1024;
-    return (byte *) malloc (*size);
+    byte* ans = (byte *) malloc (*size);
+    if(!ans)
+        I_Error("I_ZoneBase: malloc failed");
 }
 
 

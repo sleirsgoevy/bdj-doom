@@ -53,6 +53,7 @@ public class MyXlet implements Xlet, UserEventListener
     private HScene scene;
     private Screen gui;
     private XletContext context;
+    private PrintStream console;
     private final ArrayList messages = new ArrayList();
     public void initXlet(XletContext context)
     {
@@ -85,6 +86,7 @@ public class MyXlet implements Xlet, UserEventListener
                 {
                     try
                     {
+                        console = new PrintStream(new MessagesOutputStream(messages, scene));
                         InputStream is = getClass().getResourceAsStream("/program.data.bin");
                         int start = CibylCallTable.getAddressByName("__start");
                         CRunTime.init(is);
@@ -200,8 +202,8 @@ public class MyXlet implements Xlet, UserEventListener
     {
         return MyXlet.class;
     }
-    public static OutputStream getStdout()
+    public static PrintStream getStdout()
     {
-        return new MessagesOutputStream(instance.messages, instance.scene);
+        return instance.console;
     }
 }
