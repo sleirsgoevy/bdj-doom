@@ -5,7 +5,7 @@ include/cibyl-syscalls.db: syscalls/bluplay/* syscalls/bluplay/include/org/homeb
 
 build/main: include/cibyl-syscalls.db src/*.c src/doom/*.c src/doom/*.h include/*.h
 	mkdir -p build
-	../../cibyl/mips-cibyl-elf/bin/mips-cibyl-elf-gcc --std=gnu99 -DNORMALUNIX -D__BIG_ENDIAN__ -I include src/*.c src/doom/*.c -O1 -lm -lcrt0 -o build/main
+	../../cibyl/mips-cibyl-elf/bin/mips-cibyl-elf-gcc --std=gnu99 -DNORMALUNIX -D__BIG_ENDIAN__ -I include src/*.c src/doom/*.c -O0 -lm -lcrt0 -o build/main
 
 build/classes: build/main include/cibyl-syscalls.db
 	rm -rf build/classes build/classes0
@@ -17,6 +17,8 @@ build/classes: build/main include/cibyl-syscalls.db
 	rm build/classes0/CRunTime.java
 	sed -i 's/System\.out/MyXlet.getStdout()/g' build/classes0/org/homebrew/Syscalls.java
 	sed -i 's/System\.err/MyXlet.getStdout()/g' build/classes0/org/homebrew/Syscalls.java
+	#sed -i 's/System\.out/MyXlet.getNetStdout()/g' build/classes0/org/homebrew/Syscalls.java
+	#sed -i 's/System\.err/MyXlet.getNetStdout()/g' build/classes0/org/homebrew/Syscalls.java
 	mv build/classes0 build/classes
 
 clean:

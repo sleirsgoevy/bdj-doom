@@ -2,7 +2,4 @@ static void NOPH_MyXlet_blitFramebuffer(int x, int y, int w, int h, int* ptr, in
 
 static void NOPH_MyXlet_repaint(){}
 
-static int NOPH_MyXlet_pollInput()
-{
-    return 0;
-}
+int NOPH_MyXlet_pollInput();

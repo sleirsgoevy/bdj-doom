@@ -50,7 +50,7 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 
 
 
-int	mb_used = 4;
+//int	mb_used = 4;
 
 
 void
@@ -72,14 +72,14 @@ ticcmd_t*	I_BaseTiccmd(void)
 
 int  I_GetHeapSize (void)
 {
-    return mb_used*1024*1024;
+    return 4500000;//mb_used*1024*1024;
 }
 
 byte* I_ZoneBase (int*	size)
 {
     void test_memory();
     test_memory();
-    *size = mb_used*1024*1024;
+    *size = 4500000;//mb_used*1024*1024;
     byte* ans = (byte *) malloc (*size);
     if(!ans)
         I_Error("I_ZoneBase: malloc failed");

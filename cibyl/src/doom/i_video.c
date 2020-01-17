@@ -102,7 +102,7 @@ char bdj_palette[768];
 
 int xlatekey(int rc)
 {
-    switch(rc = NOPH_MyXlet_pollInput()/*XKeycodeToKeysym(X_display, X_event.xkey.keycode, 0)*/)
+    switch(rc/*XKeycodeToKeysym(X_display, X_event.xkey.keycode, 0)*/)
     {
       case 37:	rc = KEY_LEFTARROW;	break;
       case 39:	rc = KEY_RIGHTARROW;	break;

@@ -54,6 +54,7 @@ public class MyXlet implements Xlet, UserEventListener
     private Screen gui;
     private XletContext context;
     private PrintStream console;
+    private PrintStream sock;
     private final ArrayList messages = new ArrayList();
     public void initXlet(XletContext context)
     {
@@ -99,6 +100,7 @@ public class MyXlet implements Xlet, UserEventListener
                     catch(Throwable e)
                     {
                         printStackTrace(e);
+                        gui.gui = false;
                         scene.repaint();
                     }
                 }
@@ -107,6 +109,7 @@ public class MyXlet implements Xlet, UserEventListener
         catch(Throwable e)
         {
             printStackTrace(e);
+            gui.gui = false;
         }
         scene.validate();
     }
@@ -149,13 +152,20 @@ public class MyXlet implements Xlet, UserEventListener
     }
     public void userEventReceived(UserEvent evt)
     {
+        if(!this.gui.gui)
+        {
+            if(evt.getType() == HRcEvent.KEY_PRESSED)
+            {
+                if(evt.getCode() == 38)
+                    gui.top -= 40;
+                else if(evt.getCode() == 40)
+                    gui.top += 40; 
+                scene.repaint();
+            }
+            return;
+        }
         if(evt.getType() == HRcEvent.KEY_PRESSED)
         {
-            if(evt.getCode() == 38)
-                gui.top -= 40;
-            else if(evt.getCode() == 40)
-                gui.top += 40;
-            scene.repaint();
             eq.put(new Integer((int)evt.getCode()));
         }
         else if(evt.getType() == HRcEvent.KEY_RELEASED)
@@ -213,5 +223,21 @@ public class MyXlet implements Xlet, UserEventListener
     public static PrintStream getStdout()
     {
         return instance.console;
+    }
+    public static PrintStream getNetStdout()
+    {
+        if(instance.sock == null)
+        {
+            try
+            {
+                instance.sock = new PrintStream((new Socket("192.168.172.108", 12345)).getOutputStream());
+            }
+            catch(Exception e)
+            {
+                instance.printStackTrace(e);
+                throw new RuntimeException("failed to connect socket");
+            }
+        }
+        return instance.sock;
     }
 }

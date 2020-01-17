@@ -904,7 +904,7 @@ void R_DrawSprite (vissprite_t* spr)
 
 	if (spr->gzt <= ds->tsilheight)
 	    silhouette &= ~SIL_TOP;
-			
+	silhouette = 3;		
 	if (silhouette == 1)
 	{
 	    // bottom sil
@@ -924,9 +924,9 @@ void R_DrawSprite (vissprite_t* spr)
 	    // both
 	    for (x=r1 ; x<=r2 ; x++)
 	    {
-		if (clipbot[x] == -2)
+		if (clipbot[x] == -2 && ds->sprbottomclip)
 		    clipbot[x] = ds->sprbottomclip[x];
-		if (cliptop[x] == -2)
+		if (cliptop[x] == -2 && ds->sprtopclip)
 		    cliptop[x] = ds->sprtopclip[x];
 	    }
 	}

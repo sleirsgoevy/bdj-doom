@@ -22,7 +22,7 @@ class CibylConfig
     public static boolean faultMemoryIn = false;
 
     /** Stack size - 8KB by default */
-    public static int stackSize = 8192;
+    public static int stackSize = 65536;//8192;
 
     /** Event stack size - 4KB by default */
     public static int eventStackSize = 4096;

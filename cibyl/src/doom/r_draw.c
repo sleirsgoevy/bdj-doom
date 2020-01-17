@@ -116,12 +116,13 @@ void R_DrawColumn (void)
     if (count < 0) 
 	return; 
 				 
-#ifdef RANGECHECK 
+//#ifdef RANGECHECK 
     if ((unsigned)dc_x >= SCREENWIDTH
 	|| dc_yl < 0
-	|| dc_yh >= SCREENHEIGHT) 
-	I_Error ("R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x); 
-#endif 
+	|| dc_yh >= SCREENHEIGHT)
+        //it crashes here if the player touches a torch on e1m1
+	return; //I_Error ("R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x); 
+//#endif 
 
     // Framebuffer destination address.
     // Use ylookup LUT to avoid multiply with ScreenWidth.

@@ -24,7 +24,7 @@ public class MessagesOutputStream extends OutputStream
             cur = "";
             messages.add(cur);
         }
-        else
+        else if(c != 179)
         {
             cur += (char)c;
             messages.set(messages.size()-1, cur);
