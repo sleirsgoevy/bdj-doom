@@ -301,20 +301,16 @@ void W_Reload (void)
 //
 void W_InitMultipleFiles (char** filenames)
 {
-    fprintf(stderr, "xyu\n");
     int		size;
     
     // open all the files, load headers, and count lumps
-    fprintf(stderr, "xyu\n");
     numlumps = 0;
 
     // will be realloced as lumps are added
-    fprintf(stderr, "xyu\n");
     lumpinfo = malloc(1);	
 
     for ( ; *filenames ; filenames++)
     {
-        fprintf(stderr, "xyu\n");
 	W_AddFile (*filenames);
     }
 

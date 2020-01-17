@@ -6,10 +6,16 @@
 
 static int access(const char* fn, int mode)
 {
+    void test_memory();
+    test_memory();
+    printf("in access\n");
     FILE* f = fopen(fn, "r");
+    test_memory();
     if(!f)
         return -1;
     fclose(f);
+    printf("out access\n");
+    test_memory();
     return 0;
 }
 #define R_OK 0
@@ -17,7 +23,7 @@ static int access(const char* fn, int mode)
 static char* getenv(const char* name)
 {
     if(!strcmp(name, "DOOMWADDIR"))
-        return "mem:resource://";
+        return "resource://";
     if(!strcmp(name, "HOME"))
         return "/home/fake";
     return NULL;
@@ -27,6 +33,8 @@ struct fd
 {
     FILE* f;
     char* path;
+    int mode;
+    int offset;
 };
 
 static int open(const char* path, int mode, ...)
@@ -37,6 +45,8 @@ static int open(const char* path, int mode, ...)
     struct fd* ans = malloc(sizeof(struct fd));
     ans->f = f;
     ans->path = strdup(path);
+    ans->mode = mode;
+    ans->offset = 0;
     return (int)ans;
 }
 #define O_RDONLY 0
@@ -47,12 +57,18 @@ static int open(const char* path, int mode, ...)
 
 static long read(int fd, void* buf, size_t count)
 {
-    return fread(buf, 1, count, ((struct fd*)fd)->f);
+    long ans = fread(buf, 1, count, ((struct fd*)fd)->f);
+    if(ans >= 0)
+        ((struct fd*)fd)->offset += ans;
+    return ans;
 }
 
 static long write(int fd, const void* buf, size_t count)
 {
-    return fwrite(buf, 1, count, ((struct fd*)fd)->f);
+    long ans = fwrite(buf, 1, count, ((struct fd*)fd)->f);
+    if(ans >= 0)
+        ((struct fd*)fd)->offset += ans;
+    return ans;
 }
 
 static int close(int fd)
@@ -91,8 +107,24 @@ typedef int off_t;
 
 static off_t lseek(int fd, off_t offset, int whence)
 {
-    int ans = fseek(((struct fd*)fd)->f, offset, whence);
-    if(ans == 0)
-        return ftell(((struct fd*)fd)->f);
-    return ans;
+    if(offset < 0)
+        return -1;
+    struct fd* f = (struct fd*)fd;
+    if(f->offset > offset)
+    {
+        fclose(f->f);
+        f->f = fopen(f->path, f->mode?"w":"r");
+        f->offset = 0;
+    }
+    char buf[256];
+    while(f->offset != offset)
+    {
+        int left = offset - f->offset;
+        if(left > 256)
+            left = 256;
+        int chunk_sz = read(fd, buf, left);
+        if(chunk_sz < 0)
+            return -1;
+    }
+    return offset;
 }

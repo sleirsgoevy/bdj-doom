@@ -3,9 +3,9 @@ all: build/classes
 include/cibyl-syscalls.db: syscalls/bluplay/* syscalls/bluplay/include/org/homebrew.h
 	python fake_bin/struct_pack_wrapper.py ../../cibyl/mips-cibyl-elf/bin/cibyl-generate-c-header syscalls bluplay -o include
 
-build/main: include/cibyl-syscalls.db src/*.c src/doom/*.c src/doom/*.h
+build/main: include/cibyl-syscalls.db src/*.c src/doom/*.c src/doom/*.h include/*.h
 	mkdir -p build
-	../../cibyl/mips-cibyl-elf/bin/mips-cibyl-elf-gcc --std=gnu99 -DNORMALUNIX -I include src/*.c src/doom/*.c -O1 -lm -lcrt0 -o build/main
+	../../cibyl/mips-cibyl-elf/bin/mips-cibyl-elf-gcc --std=gnu99 -DNORMALUNIX -D__BIG_ENDIAN__ -I include src/*.c src/doom/*.c -O1 -lm -lcrt0 -o build/main
 
 build/classes: build/main include/cibyl-syscalls.db
 	rm -rf build/classes build/classes0

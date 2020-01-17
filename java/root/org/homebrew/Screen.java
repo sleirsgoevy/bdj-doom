@@ -14,6 +14,7 @@ public class Screen extends Container
     private ArrayList messages;
     private Font font;
     private DVBBufferedImage fb;
+    public int top;
     public Screen(ArrayList messages)
     {
         this.messages = messages;
@@ -23,13 +24,12 @@ public class Screen extends Container
     public void paint(Graphics g)
     {
         /*Graphics offG = fb.getGraphics();
-        offG.setFont(font);
-        offG.setColor(new Color(100, 110, 160));
-        offG.fillRect(0, 0, getWidth(), getHeight());*/
+        offG.setFont(font); */
         g.drawImage(fb, 0, 0, 1920, 1080, 0, 0, 576, 324, null);
+        g.setColor(new Color(100, 110, 160));
+        g.fillRect(0, 0, getWidth(), getHeight());
         g.setFont(font);
         g.setColor(new Color(255, 255, 255));
-        int top = 100;
         for(int i = 0; i < messages.size(); i++)
         {
             String message = (String)messages.get(i);

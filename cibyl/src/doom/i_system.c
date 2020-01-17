@@ -50,7 +50,7 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 
 
 
-int	mb_used = 6;
+int	mb_used = 4;
 
 
 void
@@ -77,6 +77,8 @@ int  I_GetHeapSize (void)
 
 byte* I_ZoneBase (int*	size)
 {
+    void test_memory();
+    test_memory();
     *size = mb_used*1024*1024;
     byte* ans = (byte *) malloc (*size);
     if(!ans)

@@ -963,7 +963,7 @@ void D_DoomMain (void)
     startepisode = 1;
     startmap = 1;
     autostart = false;
-    fprintf(stderr, "xyu0\n");
+
     p = M_CheckParm ("-skill");
     if (p && p < myargc-1)
     {
@@ -1006,19 +1006,19 @@ void D_DoomMain (void)
 	}
 	autostart = true;
     }
-    fprintf(stderr, "xyu1\n");
+
     // init subsystems
     printf ("V_Init: allocate screens.\n");
     V_Init ();
-    fprintf(stderr, "xyu2\n");
+
     printf ("M_LoadDefaults: Load system defaults.\n");
     M_LoadDefaults ();              // load before initing other systems
-    fprintf(stderr, "xyu3\n");
+
     printf ("Z_Init: Init zone memory allocation daemon. \n");
     Z_Init ();
-    fprintf(stderr, "xyu4\n");
+
     printf ("W_Init: Init WADfiles.\n");
-    fprintf(stderr, "xyu5\n");
+
     W_InitMultipleFiles (wadfiles);
     
 

@@ -1,13 +1,36 @@
 #include <org/homebrew.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <stddef.h>
 
 int data[576*324];
 
 int Helper_main(int argc, char** argv);
 
+void test_memory()
+{
+    printf("test memory... ");
+    int l = 0;
+    int h = 16777216;
+    while(h - l > 1)
+    {
+        int m = (l+h)/2;
+        void* buf = malloc(m);
+        if(buf)
+        {
+            free(buf);
+            l = m;
+        }
+        else
+            h = m;
+    }
+    printf("%d bytes available\n", l);
+}
+
 int main()
 {
+    test_memory();
+    test_memory();
     fprintf(stdout, "test stdout\n");
     fprintf(stderr, "test stderr\n");
     printf("test printf\n");
