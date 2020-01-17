@@ -27,6 +27,8 @@
 static const char
 rcsid[] = "$Id: r_data.c,v 1.4 1997/02/03 16:47:55 b1 Exp $";
 
+#include <cibyl_memcpy.h>
+
 #include "i_system.h"
 #include "z_zone.h"
 
@@ -538,6 +540,9 @@ void R_InitTextures (void)
 
 	for (j=0 ; j<texture->patchcount ; j++, mpatch++, patch++)
 	{
+            char patch_name[9];
+            memcpy(patch_name, name_p+SHORT(mpatch->patch)*8, 8);
+            patch_name[8] = 0;
 	    patch->originx = SHORT(mpatch->originx);
 	    patch->originy = SHORT(mpatch->originy);
 	    patch->patch = patchlookup[SHORT(mpatch->patch)];

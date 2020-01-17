@@ -192,6 +192,7 @@ public class MyXlet implements Xlet, UserEventListener
     {
         if(ptr % 4 != 0)
             throw new RuntimeException("blitFramebuffer: unaligned pointer passed");
+        instance.gui.gui = true;
         instance.gui.getFramebuffer().setRGB(x, y, w, h, CRunTime.memory, ptr / 4, scansz);
     }
     public static void repaint()

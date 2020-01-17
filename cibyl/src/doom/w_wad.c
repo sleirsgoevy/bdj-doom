@@ -25,7 +25,7 @@
 static const char
 rcsid[] = "$Id: w_wad.c,v 1.5 1997/02/03 16:47:57 b1 Exp $";
 
-
+#include <cibyl_memcpy.h>
 #ifdef NORMALUNIX
 #include <ctype.h>
 #include <sys/types.h>
@@ -175,7 +175,8 @@ void W_AddFile (char *filename)
 	// single lump file
 	fileinfo = &singleinfo;
 	singleinfo.filepos = 0;
-	singleinfo.size = LONG(filelength(handle));
+	singleinfo.size = filelength(handle);
+        singleinfo.size = LONG(singleinfo.size);
 	ExtractFileBase (filename, singleinfo.name);
 	numlumps++;
         goto over_else_1; //VLA scope
@@ -390,8 +391,11 @@ int W_CheckNumForName (char* name)
 
     while (lump_p-- != lumpinfo)
     {
-	if ( *(int *)lump_p->name == v1
-	     && *(int *)&lump_p->name[4] == v2)
+        int q[3];
+        memcpy(q, lump_p->name, 8);
+        q[2] = 0;
+	if ( q[0]/**(int *)lump_p->name*/ == v1
+	     && q[1]/**(int *)&lump_p->name[4]*/ == v2)
 	{
 	    return lump_p - lumpinfo;
 	}

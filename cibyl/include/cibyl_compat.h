@@ -6,16 +6,10 @@
 
 static int access(const char* fn, int mode)
 {
-    void test_memory();
-    test_memory();
-    printf("in access\n");
     FILE* f = fopen(fn, "r");
-    test_memory();
     if(!f)
         return -1;
     fclose(f);
-    printf("out access\n");
-    test_memory();
     return 0;
 }
 #define R_OK 0

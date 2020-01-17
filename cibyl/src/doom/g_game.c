@@ -24,6 +24,8 @@
 static const char
 rcsid[] = "$Id: g_game.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 
+#include <cibyl_memcpy.h>
+
 #include <string.h>
 #include <stdlib.h>
 

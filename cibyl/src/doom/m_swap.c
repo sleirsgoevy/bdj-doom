@@ -35,22 +35,20 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 #ifdef __BIG_ENDIAN__
 
 // Swap 16bit, that is, MSB and LSB byte.
-short SwapSHORT(short x0)
+short ReadSHORT(short* addr)
 {
-    unsigned short x = x0;
-    // No masking with 0xFF should be necessary. 
-    return (x>>8) | (x<<8);
+    unsigned char* p = (char*)addr;
+    return p[0] | p[1] << 8;
 }
 
 // Swapping 32bit.
-long SwapLONG(long x0)
+long ReadLONG(long* addr)
 {
-    unsigned long x = x0;
-    return
-	(x>>24)
-	| ((x>>8) & 0xff00)
-	| ((x<<8) & 0xff0000)
-	| (x<<24);
+    unsigned char* p = (char*)addr;
+    unsigned long ans = 0;
+    for(int i = 3; i >= 0; i--)
+        ans = ans << 8 | p[i];
+    return ans;
 }
 
 

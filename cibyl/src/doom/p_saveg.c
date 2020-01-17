@@ -24,6 +24,8 @@
 static const char
 rcsid[] = "$Id: p_tick.c,v 1.4 1997/02/03 16:47:55 b1 Exp $";
 
+#include <cibyl_memcpy.h>
+
 #include "i_system.h"
 #include "z_zone.h"
 #include "p_local.h"

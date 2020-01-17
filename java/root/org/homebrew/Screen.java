@@ -15,6 +15,7 @@ public class Screen extends Container
     private Font font;
     private DVBBufferedImage fb;
     public int top;
+    public boolean gui = false;
     public Screen(ArrayList messages)
     {
         this.messages = messages;
@@ -25,7 +26,11 @@ public class Screen extends Container
     {
         /*Graphics offG = fb.getGraphics();
         offG.setFont(font); */
-        g.drawImage(fb, 0, 0, 1920, 1080, 0, 0, 576, 324, null);
+        if(gui)
+        {
+            g.drawImage(fb, 0, 0, 1920, 1080, 0, 0, 576, 324, null);
+            return;
+        }
         g.setColor(new Color(100, 110, 160));
         g.fillRect(0, 0, getWidth(), getHeight());
         g.setFont(font);

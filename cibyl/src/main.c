@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <assert.h>
 
 int data[576*324];
 
@@ -29,6 +30,7 @@ void test_memory()
 
 int main()
 {
+    assert(sizeof(long) == sizeof(int));
     test_memory();
     test_memory();
     fprintf(stdout, "test stdout\n");

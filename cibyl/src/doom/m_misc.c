@@ -27,6 +27,8 @@
 static const char
 rcsid[] = "$Id: m_misc.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 
+#include <cibyl_memcpy.h>
+
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
@@ -482,8 +484,8 @@ void
 WritePCXfile
 ( char*		filename,
   byte*		data,
-  int		width,
-  int		height,
+  short		width,
+  short		height,
   byte*		palette )
 {
     int		i;
@@ -499,14 +501,17 @@ WritePCXfile
     pcx->bits_per_pixel = 8;		// 256 color
     pcx->xmin = 0;
     pcx->ymin = 0;
-    pcx->xmax = SHORT(width-1);
-    pcx->ymax = SHORT(height-1);
+    pcx->xmax = width - 1;
+    pcx->xmax = SHORT(pcx->xmax);
+    pcx->ymax = height - 1;
+    pcx->ymax = SHORT(pcx->ymax);
     pcx->hres = SHORT(width);
     pcx->vres = SHORT(height);
     memset (pcx->palette,0,sizeof(pcx->palette));
     pcx->color_planes = 1;		// chunky image
     pcx->bytes_per_line = SHORT(width);
-    pcx->palette_type = SHORT(2);	// not a grey scale
+    pcx->palette_type = 2;	// not a grey scale
+    pcx->palette_type = SHORT(pcx->palette_type);
     memset (pcx->filler,0,sizeof(pcx->filler));
 
 
