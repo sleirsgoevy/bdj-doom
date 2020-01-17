@@ -1,0 +1,15 @@
+
+   l2     r2
+   l1     r1
+
+    w
+   a d   d o
+    s     x
+
+wasd -- movement
+d -- open door
+o -- escape
+l1 -- prev weapon (NYI)
+r1 -- next weapon (NYI)
+L2 -- not assigned
+r2 -- fight

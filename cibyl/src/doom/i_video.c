@@ -102,13 +102,14 @@ char bdj_palette[768];
 
 int xlatekey(int rc)
 {
+    static int current_weapon = 1;
     switch(rc/*XKeycodeToKeysym(X_display, X_event.xkey.keycode, 0)*/)
     {
       case 37:	rc = KEY_LEFTARROW;	break;
       case 39:	rc = KEY_RIGHTARROW;	break;
       case 40:	rc = KEY_DOWNARROW;	break;
       case 38:	rc = KEY_UPARROW;	break;
-      //case XK_Escape:	rc = KEY_ESCAPE;	break;
+      case 19:	rc = KEY_ESCAPE;	break;
       case 10:	rc = KEY_ENTER;		break;
       /*case XK_Tab:	rc = KEY_TAB;		break;
       case XK_F1:	rc = KEY_F1;		break;
@@ -141,11 +142,12 @@ int xlatekey(int rc)
 	break;
 	
       case XK_Control_L:
-      case XK_Control_R:
+      case XK_Control_R:*/
+      case 417:
 	rc = KEY_RCTRL;
 	break;
 	
-      case XK_Alt_L:
+      /*case XK_Alt_L:
       case XK_Meta_L:
       case XK_Alt_R:
       case XK_Meta_R:
@@ -158,6 +160,8 @@ int xlatekey(int rc)
 	if (rc >= 'A' && rc <= 'Z')
 	    rc = rc - 'A' + 'a';
 	break;*/
+      case 461: rc = ' '; break;
+
       default: rc = 0;
     }
 
