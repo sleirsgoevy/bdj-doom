@@ -157,9 +157,9 @@ public class MyXlet implements Xlet, UserEventListener
             if(evt.getType() == HRcEvent.KEY_PRESSED)
             {
                 if(evt.getCode() == 38)
-                    gui.top -= 40;
+                    gui.top -= 800;
                 else if(evt.getCode() == 40)
-                    gui.top += 40; 
+                    gui.top += 800; 
                 scene.repaint();
             }
             return;

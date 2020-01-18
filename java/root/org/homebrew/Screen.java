@@ -14,7 +14,7 @@ public class Screen extends Container
     private ArrayList messages;
     private Font font;
     private DVBBufferedImage fb;
-    public int top;
+    public int top = 40;
     public boolean gui = false;
     public Screen(ArrayList messages)
     {
