@@ -6,10 +6,10 @@
    a d   d o
     s     x
 
-wasd -- movement
+w a s d -- movement
 d -- open door
 o -- escape
 l1 -- prev weapon (NYI)
-r1 -- next weapon (NYI)
-L2 -- not assigned
+l2 -- next weapon (NYI)
+r1 -- same as w
 r2 -- fight

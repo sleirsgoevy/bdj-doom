@@ -100,15 +100,33 @@ char bdj_palette[768];
 //  Translates the key currently in X_event
 //
 
-int xlatekey(int rc)
+int xlatekey(int rc, int keydown)
 {
-    static int current_weapon = 1;
+    static int w_cnt;
     switch(rc/*XKeycodeToKeysym(X_display, X_event.xkey.keycode, 0)*/)
     {
       case 37:	rc = KEY_LEFTARROW;	break;
       case 39:	rc = KEY_RIGHTARROW;	break;
       case 40:	rc = KEY_DOWNARROW;	break;
-      case 38:	rc = KEY_UPARROW;	break;
+      case 425: //fallthrough
+      case 38:
+          if(keydown)
+          {
+              if(w_cnt == 0)
+                  rc = KEY_UPARROW;
+              else
+                  rc = 0;
+              w_cnt++;
+          }
+          else
+          {
+              w_cnt--;
+              if(w_cnt == 0)
+                  rc = KEY_UPARROW;
+              else
+                  rc = 0;
+          }
+          break;
       case 19:	rc = KEY_ESCAPE;	break;
       case 10:	rc = KEY_ENTER;		break;
       /*case XK_Tab:	rc = KEY_TAB;		break;
@@ -215,7 +233,7 @@ int I_GetEvent(void)
       if(bdj_event > 0)
       {
 	event.type = ev_keydown;
-	event.data1 = xlatekey(bdj_event);
+	event.data1 = xlatekey(bdj_event, 1);
 	D_PostEvent(&event);
 	// fprintf(stderr, "k");
 	//break;
@@ -224,7 +242,7 @@ int I_GetEvent(void)
       else if(bdj_event < 0)
       {
 	event.type = ev_keyup;
-	event.data1 = xlatekey(-bdj_event);
+	event.data1 = xlatekey(-bdj_event, 0);
 	D_PostEvent(&event);
 	// fprintf(stderr, "ku");
 	//break;
