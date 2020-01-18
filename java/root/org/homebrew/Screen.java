@@ -20,7 +20,7 @@ public class Screen extends Container
     {
         this.messages = messages;
         font = new Font(null, Font.PLAIN, 36);
-        fb = new DVBBufferedImage(576, 324);
+        fb = new DVBBufferedImage(320, 200);
     }
     public void paint(Graphics g)
     {
@@ -28,7 +28,7 @@ public class Screen extends Container
         offG.setFont(font); */
         if(gui)
         {
-            g.drawImage(fb, 0, 0, 1920, 1080, 0, 0, 576, 324, null);
+            g.drawImage(fb, 0, 0, 1920, 1080, 0, 0, 320, 200, null);
             return;
         }
         g.setColor(new Color(100, 110, 160));
