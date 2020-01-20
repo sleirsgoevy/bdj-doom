@@ -13,6 +13,7 @@ import javax.tv.xlet.*;
 
 import org.bluray.ui.event.HRcEvent;
 import org.bluray.net.BDLocator;
+import org.bluray.ti.DiscManager;
 import org.davic.net.Locator;
 
 import org.dvb.event.EventManager;
@@ -239,5 +240,20 @@ public class MyXlet implements Xlet, UserEventListener
             }
         }
         return instance.sock;
+    }
+    private String getVFSRoot()
+    {
+        return "file://"+System.getProperty("dvb.persistent.root")
+              +"/"+(String)context.getXletProperty("dvb.org.id")
+              +"/"+(String)context.getXletProperty("dvb.app.id");
+    }
+    public static int strlenVFSRoot() throws Exception
+    {
+        return instance.getVFSRoot().getBytes("UTF8").length;
+    }
+    public static void getVFSRoot(int buffer) throws Exception
+    {
+        byte[] data = (instance.getVFSRoot()+"\u0000").getBytes("UTF8");
+        CRunTime.memcpy(buffer, data, 0, data.length);
     }
 }

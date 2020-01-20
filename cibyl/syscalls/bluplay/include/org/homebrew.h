@@ -22,3 +22,7 @@ NOPH_Class_t NOPH_MyXlet_getclass(void);
 
 // returns an OutputStream for printing to the screen
 NOPH_OutputStream_t NOPH_MyXlet_getStdout(void);
+
+// get the VFS root, prefixed with 'file://'
+int NOPH_MyXlet_strlenVFSRoot(void); /* Throws */
+void NOPH_MyXlet_getVFSRoot(void* buf); /* Throws */

@@ -56,6 +56,10 @@ int NOPH_MyXlet_pollInput()
             return coef*19;
         case SDLK_SPACE:
             return coef*461;
+        case SDLK_1:
+            return coef*424;
+        case SDLK_9:
+            return coef*412;
         }
     }
     return 0;

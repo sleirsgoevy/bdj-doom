@@ -14,14 +14,7 @@ static int access(const char* fn, int mode)
 }
 #define R_OK 0
 
-static char* getenv(const char* name)
-{
-    if(!strcmp(name, "DOOMWADDIR"))
-        return "resource://";
-    if(!strcmp(name, "HOME"))
-        return "/home/fake";
-    return NULL;
-}
+#include <cibyl_getenv.h>
 
 struct fd
 {
