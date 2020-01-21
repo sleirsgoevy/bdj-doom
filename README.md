@@ -23,6 +23,6 @@ To build the native executable, type `make`. It will be compiled from exactly th
 
 ## Current status
 
-Basically the game is playable. However, elevators don't work properly, and the door at the end of E1M2 doesn't open.
+Basically the game is playable. ~~However, elevators don't work properly, and the door at the end of E1M2 doesn't open.~~ FIXED
 
-Currently only the video and input subsystems have been ported. There is no support for network play, sound, or game saves.
+Currently only the video and input subsystems have been ported. There is no support for network play, sound, ~~or game saves~~.
