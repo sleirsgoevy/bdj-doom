@@ -904,7 +904,7 @@ void R_DrawSprite (vissprite_t* spr)
 
 	if (spr->gzt <= ds->tsilheight)
 	    silhouette &= ~SIL_TOP;
-	silhouette = 3;		
+	//silhouette = 3;		
 	if (silhouette == 1)
 	{
 	    // bottom sil

@@ -303,6 +303,8 @@ void P_UnArchiveThinkers (void)
 	    save_p += sizeof(*mobj);
 	    mobj->state = &states[(int)mobj->state];
 	    mobj->target = NULL;
+            if(((int)mobj->player) < 0 || ((int)mobj->player) >= MAXPLAYERS)
+                mobj->player = 0;
 	    if (mobj->player)
 	    {
 		mobj->player = &players[(int)mobj->player-1];

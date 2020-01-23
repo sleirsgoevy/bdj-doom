@@ -88,7 +88,10 @@ public class MyXlet implements Xlet, UserEventListener
                 {
                     try
                     {
+                        scene.repaint();
                         console = new PrintStream(new MessagesOutputStream(messages, scene));
+                        //SaveServer.testConnection(console);
+                        (new SaveServer(console)).start();
                         InputStream is = getClass().getResourceAsStream("/program.data.bin");
                         int start = CibylCallTable.getAddressByName("__start");
                         CRunTime.init(is);
@@ -241,19 +244,19 @@ public class MyXlet implements Xlet, UserEventListener
         }
         return instance.sock;
     }
-    private String getVFSRoot()
+    public static String getVFSRoot()
     {
         return "file://"+System.getProperty("dvb.persistent.root")
-              +"/"+(String)context.getXletProperty("dvb.org.id")
-              +"/"+(String)context.getXletProperty("dvb.app.id");
+              +"/"+(String)instance.context.getXletProperty("dvb.org.id")
+              +"/"+(String)instance.context.getXletProperty("dvb.app.id");
     }
     public static int strlenVFSRoot() throws Exception
     {
-        return instance.getVFSRoot().getBytes("UTF8").length;
+        return getVFSRoot().getBytes("UTF8").length;
     }
     public static void getVFSRoot(int buffer) throws Exception
     {
-        byte[] data = (instance.getVFSRoot()+"\u0000").getBytes("UTF8");
+        byte[] data = (getVFSRoot()+"\u0000").getBytes("UTF8");
         CRunTime.memcpy(buffer, data, 0, data.length);
     }
 }
