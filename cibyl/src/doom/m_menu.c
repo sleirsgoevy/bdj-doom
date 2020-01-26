@@ -1099,6 +1099,7 @@ void M_QuitResponse(int ch)
 
 void M_QuitDOOM(int choice)
 {
+  exit(123);
   // We pick index 0 which is language sensitive,
   //  or one at random, between 1 and maximum number.
   if (language != english )

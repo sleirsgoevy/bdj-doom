@@ -26,3 +26,12 @@ NOPH_OutputStream_t NOPH_MyXlet_getStdout(void);
 // get the VFS root, prefixed with 'file://'
 int NOPH_MyXlet_strlenVFSRoot(void); /* Throws */
 void NOPH_MyXlet_getVFSRoot(void* buf); /* Throws */
+
+// write `sound.bdmv`-compatible file with this sound effect
+//int NOPH_PCMWriter_writePCM(char* name, void* ptr, int sz);
+
+// add name to the list of registered sounds
+int NOPH_PCMPlayer_register(char* name, void* ptr, int sz);
+
+// play sfx #idx
+void NOPH_PCMPlayer_play(int idx); /* Throws */

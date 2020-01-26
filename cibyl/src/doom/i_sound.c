@@ -52,6 +52,7 @@ rcsid[] = "$Id: i_unix.c,v 1.5 1997/02/03 22:45:10 b1 Exp $";
 //#include <signal.h>
 
 #include <cibyl_compat.h>
+#include <org/homebrew.h>
 
 #include "z_zone.h"
 
@@ -229,10 +230,11 @@ getsfx
     //fflush( stderr );
     
     sfx = (unsigned char*)W_CacheLumpNum( sfxlump, PU_STATIC );
+    return (void*)NOPH_PCMPlayer_register(sfxname, sfx, size);
 
     // Pads the sound effect out to the mixing buffer size.
     // The original realloc would interfere with zone memory.
-    paddedsize = ((size-8 + (SAMPLECOUNT-1)) / SAMPLECOUNT) * SAMPLECOUNT;
+    /*paddedsize = ((size-8 + (SAMPLECOUNT-1)) / SAMPLECOUNT) * SAMPLECOUNT;
 
     // Allocate from zone memory.
     paddedsfx = (unsigned char*)Z_Malloc( paddedsize+8, PU_STATIC, 0 );
@@ -252,7 +254,7 @@ getsfx
     *len = paddedsize;
 
     // Return allocated padded data.
-    return (void *) (paddedsfx + 8);
+    return (void *) (paddedsfx + 8);*/
 }
 
 
@@ -273,7 +275,9 @@ addsfx
   int		step,
   int		seperation )
 {
-    static unsigned short	handlenums = 0;
+    static int counter = 0;
+    return ++counter;
+    /*static unsigned short	handlenums = 0;
  
     int		i;
     int		rc = -1;
@@ -382,7 +386,7 @@ addsfx
     channelids[slot] = sfxid;
 
     // You tell me.
-    return rc;
+    return rc;*/
 }
 
 
@@ -480,8 +484,8 @@ I_StartSound
   int		pitch,
   int		priority )
 {
-
-  // UNUSED
+  NOPH_PCMPlayer_play((int)S_sfx[id].data);
+  /*// UNUSED
   priority = 0;
   
 #ifdef SNDSERV 
@@ -502,7 +506,7 @@ I_StartSound
     // fprintf( stderr, "/handle is %d\n", id );
     
     return id;
-#endif
+#endif*/
 }
 
 
@@ -798,11 +802,11 @@ I_InitSound()
 
   fprintf(stderr, " configured audio device\n" );
 
-    
+    */
   // Initialize external data (all sounds) at start, keep static.
   fprintf( stderr, "I_InitSound: ");
   
-  for (i=1 ; i<NUMSFX ; i++)
+  for (int i=1 ; i<NUMSFX ; i++)
   { 
     // Alias? Example is the chaingun sound linked to pistol.
     if (!S_sfx[i].link)
@@ -820,7 +824,7 @@ I_InitSound()
 
   fprintf( stderr, " pre-cached all sound data\n");
   
-  // Now initialize mixbuffer with zero.
+/*  // Now initialize mixbuffer with zero.
   for ( i = 0; i< MIXBUFFERSIZE; i++ )
     mixbuffer[i] = 0;
   
