@@ -1,6 +1,8 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <signal.h>
+#include <unistd.h>
 
 void test_memory(){}
 
@@ -63,6 +65,57 @@ int NOPH_MyXlet_pollInput()
         }
     }
     return 0;
+}
+
+struct sound
+{
+    void* ptr_start;
+    int len;
+};
+
+static struct sound* sound_vec;
+static int sound_vec_cnt;
+static int sound_vec_cap;
+
+int NOPH_PCMPlayer_register(char* name, void* ptr, int sz)
+{
+    if(sound_vec_cnt == sound_vec_cap)
+    {
+        sound_vec_cap = sound_vec_cap * 2 + 1;
+        sound_vec = realloc(sound_vec, sizeof(struct sound)*sound_vec_cap);
+    }
+    int ans = sound_vec_cnt++;
+    sound_vec[ans] = (struct sound){ptr, sz};
+    return ans;
+}
+
+void NOPH_PCMPlayer_play(int idx)
+{
+    struct sound snd = sound_vec[idx];
+    if(fork())
+        return;
+    char* ptr = snd.ptr_start;
+    int cnt = snd.len;
+    int the_pipe[2];
+    if(pipe(the_pipe))
+        exit(1);
+    if(!fork())
+    {
+        close(the_pipe[1]);
+        dup2(the_pipe[0], 0);
+        execlp("aplay", "aplay", "-r", "11025", "-f", "U8", "-c", "1", NULL);
+        exit(1);
+    }
+    close(the_pipe[0]);
+    while(cnt)
+    {
+        int chunk_sz = write(the_pipe[1], ptr, cnt);
+        if(chunk_sz <= 0)
+            exit(1);
+        ptr += chunk_sz;
+        cnt -= chunk_sz;
+    }
+    exit(0);
 }
 
 int main(int argc, char** argv)
