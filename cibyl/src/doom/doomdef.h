@@ -192,7 +192,9 @@ typedef enum
     NUMWEAPONS,
     
     // No pending weapon change.
-    wp_nochange
+    wp_nochange,
+    wp_prev,
+    wp_next
 
 } weapontype_t;
 

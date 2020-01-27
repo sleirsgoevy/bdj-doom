@@ -103,7 +103,7 @@ char bdj_palette[768];
 int xlatekey(int rc, int keydown)
 {
     static int w_cnt;
-    static int current_weapon = 1;
+    static int esc_cnt;
     switch(rc/*XKeycodeToKeysym(X_display, X_event.xkey.keycode, 0)*/)
     {
       case 37:	rc = KEY_LEFTARROW;	break;
@@ -128,18 +128,28 @@ int xlatekey(int rc, int keydown)
                   rc = 0;
           }
           break;
-      case 19:	rc = KEY_ESCAPE;	break;
+      case 415: //fallthrough
+      case 19:
+          if(keydown)
+          {
+              if(esc_cnt == 0)
+                  rc = KEY_ESCAPE;
+              else
+                  rc = 0;
+              esc_cnt++;
+          }
+          else
+          {
+              esc_cnt--;
+              if(esc_cnt == 0)
+                  rc = KEY_ESCAPE;
+              else
+                  rc = 0;
+          }
+          break;
       case 10:	rc = KEY_ENTER;		break;
-      case 424:
-          if(!--current_weapon)
-              current_weapon = 1;
-          rc = current_weapon + '0';
-          break;
-      case 412:
-          if(++current_weapon == 10)
-              current_weapon = 9;
-          rc = current_weapon + '0';
-          break;
+      case 424:	rc = '/';		break;
+      case 412:	rc = ':';		break;
       /*case XK_Tab:	rc = KEY_TAB;		break;
       case XK_F1:	rc = KEY_F1;		break;
       case XK_F2:	rc = KEY_F2;		break;

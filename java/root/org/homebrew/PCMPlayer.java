@@ -37,9 +37,9 @@ public class PCMPlayer
             Integer iidx = new Integer(idx);
             if(!cache.containsKey(iidx))
             {
-                PCMWriter.writePCM("sound"+idx, ((Integer)ptrs.get(idx)).intValue(), ((Integer)szs.get(idx)).intValue());
+                //PCMWriter.writePCM("sound", ((Integer)ptrs.get(idx)).intValue(), ((Integer)szs.get(idx)).intValue());
                 pl = new HSound();
-                pl.load(new java.net.URL(MyXlet.getVFSRoot()+"/sound"+idx+".pcm"));
+                pl.set(/*new java.net.URL(MyXlet.getVFSRoot()+"/sound.pcm")*/PCMWriter.writePCM(((Integer)ptrs.get(idx)).intValue(), ((Integer)szs.get(idx)).intValue()));
                 cache.put(iidx, pl);
             }
             else

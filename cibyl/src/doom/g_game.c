@@ -349,6 +349,18 @@ void G_BuildTiccmd (ticcmd_t* cmd)
 	    cmd->buttons |= i<<BT_WEAPONSHIFT; 
 	    break; 
 	}
+    if(gamekeydown['/'])
+    {
+        cmd->buttons |= BT_CHANGE;
+        cmd->buttons |= wp_prev<<BT_WEAPONSHIFT;
+        gamekeydown['/'] = false;
+    }
+    if(gamekeydown[':'])
+    {
+        cmd->buttons |= BT_CHANGE;
+        cmd->buttons |= wp_next<<BT_WEAPONSHIFT;
+        gamekeydown[':'] = false;
+    }
     
     // mouse
     if (mousebuttons[mousebforward]) 

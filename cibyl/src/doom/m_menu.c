@@ -1081,7 +1081,7 @@ int     quitsounds2[8] =
 
 void M_QuitResponse(int ch)
 {
-    if (ch != 'y')
+    if (ch != KEY_ENTER && ch != 'y')
 	return;
     if (!netgame)
     {
@@ -1099,7 +1099,6 @@ void M_QuitResponse(int ch)
 
 void M_QuitDOOM(int choice)
 {
-  exit(123);
   // We pick index 0 which is language sensitive,
   //  or one at random, between 1 and maximum number.
   if (language != english )
@@ -1498,7 +1497,7 @@ boolean M_Responder (event_t* ev)
     if (messageToPrint)
     {
 	if (messageNeedsInput == true &&
-	    !(ch == ' ' || ch == 'n' || ch == 'y' || ch == KEY_ESCAPE))
+	    !(ch == ' ' || ch == 'n' || ch == 'y' || ch == KEY_ENTER || ch == KEY_ESCAPE))
 	    return false;
 		
 	menuactive = messageLastMenuActive;

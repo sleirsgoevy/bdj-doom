@@ -1,11 +1,13 @@
 package org.homebrew;
 
+import java.io.OutputStream;
 import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class PCMWriter
 {
-    public static void writePCM(String name, int ptr, int cnt) throws IOException
+    public static void writePCM(OutputStream out, int ptr, int cnt) throws IOException
     {
         int sz = PCMConvert.estimateSize(cnt);
         byte[] header = new byte[56];
@@ -22,7 +24,6 @@ public class PCMWriter
             header[i] = (byte)q;
             q >>>= 8;
         }
-        FileOutputStream out = new FileOutputStream(MyXlet.getVFSRoot().substring(7)+"/"+name+".pcm");
         out.write(header);
         byte[] buf1 = new byte[11025];
         byte[] buf2 = new byte[96000];
@@ -41,5 +42,16 @@ public class PCMWriter
         }
         if(rd_left != 0 || wr_left != 0)
             throw new RuntimeException("wtf?");
+    }
+    public static void writePCM(String name, int ptr, int cnt) throws IOException
+    {
+        FileOutputStream out = new FileOutputStream(MyXlet.getVFSRoot().substring(7)+"/"+name+".pcm");
+        writePCM(out, ptr, cnt);
+    }
+    public static byte[] writePCM(int ptr, int cnt) throws IOException
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        writePCM(out, ptr, cnt);
+        return out.toByteArray();
     }
 }

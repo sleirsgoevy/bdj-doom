@@ -236,6 +236,7 @@ void P_DeathThink (player_t* player)
 void P_PlayerThink (player_t* player)
 {
     ticcmd_t*		cmd;
+    weapontype_t	oldweapon;
     weapontype_t	newweapon;
 	
     // fixme: do this in the cheat code
@@ -285,8 +286,22 @@ void P_PlayerThink (player_t* player)
 	// The actual changing of the weapon is done
 	//  when the weapon psprite can do it
 	//  (read: not in the middle of an attack).
+        oldweapon = (player->pendingweapon==wp_nochange?player->readyweapon:player->pendingweapon);
 	newweapon = (cmd->buttons&BT_WEAPONMASK)>>BT_WEAPONSHIFT;
-	
+        if(newweapon == wp_prev)
+        {
+            weapontype_t i = (oldweapon==wp_supershotgun?wp_shotgun:(oldweapon==wp_fist?wp_fist:oldweapon-1));
+	    while(i != wp_fist && !(player->weaponowned[i] && ((i != wp_plasma && i != wp_bfg) || (gamemode != shareware))))
+                i--;
+            newweapon = i;
+        }
+        if(newweapon == wp_next)
+        {
+            weapontype_t i = (oldweapon==wp_supershotgun?wp_shotgun:oldweapon+1);
+            while(i < NUMWEAPONS && !(player->weaponowned[i] && ((i != wp_plasma && i != wp_bfg) || (gamemode != shareware))))
+                i++;
+            newweapon = (i==NUMWEAPONS?oldweapon:i);
+        }
 	if (newweapon == wp_fist
 	    && player->weaponowned[wp_chainsaw]
 	    && !(player->readyweapon == wp_chainsaw
