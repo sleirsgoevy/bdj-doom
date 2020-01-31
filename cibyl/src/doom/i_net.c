@@ -27,8 +27,6 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 #include <string.h>
 #include <stdio.h>
 
-//just stub the sockets out in BD-J version
-//diff this with the original to find out what has been stubbed out
 /*#include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>*/
@@ -36,6 +34,7 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 #include <unistd.h>
 /*#include <netdb.h>
 #include <sys/ioctl.h>*/
+#include <org/homebrew.h>
 
 #include "i_system.h"
 #include "d_event.h"
@@ -54,6 +53,12 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 
 
 // For some odd reason...
+#ifdef __BIG_ENDIAN
+#define ntohl(x) x
+#define ntohs(x) x
+#define htonl(x) x
+#define htons(x) x
+#else
 #define ntohl(x) \
         ((unsigned long int)((((unsigned long int)(x) & 0x000000ffU) << 24) | \
                              (((unsigned long int)(x) & 0x0000ff00U) <<  8) | \
@@ -66,6 +71,7 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 	  
 #define htonl(x) ntohl(x)
 #define htons(x) ntohs(x)
+#endif
 
 void	NetSend (void);
 boolean NetListen (void);
@@ -75,7 +81,7 @@ boolean NetListen (void);
 // NETWORKING
 //
 
-int	DOOMPORT =	0;//(IPPORT_USERRESERVED +0x1d );
+int	DOOMPORT =	5029;//(IPPORT_USERRESERVED +0x1d );
 
 int			sendsocket;
 int			insocket;
@@ -89,7 +95,7 @@ void	(*netsend) (void);
 //
 // UDPsocket
 //
-int UDPsocket (void)
+int UDPsocket (int port)
 {
     int	s;
 	
@@ -98,18 +104,18 @@ int UDPsocket (void)
     /*if (s<0)
 	I_Error ("can't create socket: %s",strerror(errno));*/
 		
-    return s;
+    return NOPH_SocketHelper_create(port);
 }
 
 //
 // BindToLocalPort
 //
-void
+/*void
 BindToLocalPort
 ( int	s,
   int	port )
 {
-    /*int			v;
+    int			v;
     struct sockaddr_in	address;
 	
     memset (&address, 0, sizeof(address));
@@ -119,8 +125,8 @@ BindToLocalPort
 			
     v = bind (s, (void *)&address, sizeof(address));
     if (v == -1)
-	I_Error ("BindToPort: bind: %s", strerror(errno));*/
-}
+	I_Error ("BindToPort: bind: %s", strerror(errno));
+}*/
 
 
 //
@@ -148,12 +154,13 @@ void PacketSend (void)
     }
 		
     //printf ("sending %i\n",gametic);		
+    c = NOPH_SocketHelper_sendto(sendsocket, &sw, doomcom->datalength, doomcom->remotenode);
     /*c = sendto (sendsocket , &sw, doomcom->datalength
 		,0,(void *)&sendaddress[doomcom->remotenode]
 		,sizeof(sendaddress[doomcom->remotenode]));*/
 	
-    //	if (c == -1)
-    //		I_Error ("SendPacket error: %s",strerror(errno));
+    	if (c == -1)
+    		I_Error ("SendPacket error");
 }
 
 
@@ -162,8 +169,6 @@ void PacketSend (void)
 //
 void PacketGet (void)
 {
-    doomcom->remotenode = -1;
-    return;
     /*int			i;
     int			c;
     struct sockaddr_in	fromaddress;
@@ -171,7 +176,7 @@ void PacketGet (void)
     doomdata_t		sw;
 				
     fromlen = sizeof(fromaddress);
-    c = -1;recvfrom (insocket, &sw, sizeof(sw), 0
+    c = recvfrom (insocket, &sw, sizeof(sw), 0
 		  , (struct sockaddr *)&fromaddress, &fromlen );
     if (c == -1 )
     {
@@ -191,7 +196,12 @@ void PacketGet (void)
     // find remote node number
     for (i=0 ; i<doomcom->numnodes ; i++)
 	if ( fromaddress.sin_addr.s_addr == sendaddress[i].sin_addr.s_addr )
-	    break;
+	    break;*/
+    /*doomcom->remotenode = -1;
+    return;*/
+    int i = doomcom->numnodes;
+    doomdata_t		sw;
+    int c = NOPH_SocketHelper_recvfrom(insocket, &sw, sizeof(sw), &i);
 
     if (i == doomcom->numnodes)
     {
@@ -218,15 +228,14 @@ void PacketGet (void)
 	netbuffer->cmds[c].consistancy = ntohs(sw.cmds[c].consistancy);
 	netbuffer->cmds[c].chatchar = sw.cmds[c].chatchar;
 	netbuffer->cmds[c].buttons = sw.cmds[c].buttons;
-    }*/
+    }
 }
 
 
 
-int GetLocalAddress (void)
+/*int GetLocalAddress (void)
 {
-    return 0x7f000001;
-    /*char		hostname[1024];
+    char		hostname[1024];
     struct hostent*	hostentry;	// host information entry
     int			v;
 
@@ -239,8 +248,8 @@ int GetLocalAddress (void)
     if (!hostentry)
 	I_Error ("GetLocalAddress : gethostbyname: couldn't get local host");
 		
-    return *(int *)hostentry->h_addr_list[0];*/
-}
+    return *(int *)hostentry->h_addr_list[0];
+}*/
 
 
 //
@@ -307,21 +316,22 @@ void I_InitNetwork (void)
     i++;
     while (++i < myargc && myargv[i][0] != '-')
     {
+        NOPH_SocketHelper_registerPeer(myargv[i], DOOMPORT);
 	/*sendaddress[doomcom->numnodes].sin_family = AF_INET;
-	sendaddress[doomcom->numnodes].sin_port = htons(DOOMPORT);*/
+	sendaddress[doomcom->numnodes].sin_port = htons(DOOMPORT);
 	if (myargv[i][0] == '.')
 	{
-	    /*sendaddress[doomcom->numnodes].sin_addr.s_addr 
-		= inet_addr (myargv[i]+1);*/
+	    sendaddress[doomcom->numnodes].sin_addr.s_addr 
+		= inet_addr (myargv[i]+1);
 	}
 	else
 	{
-	    /*hostentry = gethostbyname (myargv[i]);
+	    hostentry = gethostbyname (myargv[i]);
 	    if (!hostentry)
 		I_Error ("gethostbyname: couldn't find %s", myargv[i]);
 	    sendaddress[doomcom->numnodes].sin_addr.s_addr 
-		= *(int *)hostentry->h_addr_list[0];*/
-	}
+		= *(int *)hostentry->h_addr_list[0];
+	}*/
 	doomcom->numnodes++;
     }
 	
@@ -329,11 +339,11 @@ void I_InitNetwork (void)
     doomcom->numplayers = doomcom->numnodes;
     
     // build message to receive
-    insocket = UDPsocket ();
-    BindToLocalPort (insocket,htons(DOOMPORT));
+    insocket = UDPsocket (DOOMPORT);
+    //BindToLocalPort (insocket,htons(DOOMPORT));
     //ioctl (insocket, FIONBIO, &trueval);
 
-    sendsocket = UDPsocket ();
+    sendsocket = insocket;//UDPsocket ();
 }
 
 

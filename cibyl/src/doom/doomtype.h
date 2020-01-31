@@ -47,6 +47,14 @@ typedef unsigned char byte;
 #undef MAXINT
 #endif
 
+#ifdef MINLONG
+#undef MINLONG
+#endif
+
+#ifdef MAXLONG
+#undef MAXLONG
+#endif
+
 #ifdef LINUX
 #include <values.h>
 #else

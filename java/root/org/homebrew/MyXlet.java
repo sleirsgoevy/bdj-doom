@@ -27,7 +27,7 @@ import org.dvb.ui.DVBBufferedImage;
 public class MyXlet implements Xlet, UserEventListener
 {
     private static MyXlet instance;
-    private class EventQueue
+    public static class EventQueue
     {
         private LinkedList l;
         int cnt = 0;
@@ -257,6 +257,27 @@ public class MyXlet implements Xlet, UserEventListener
     public static void getVFSRoot(int buffer) throws Exception
     {
         byte[] data = (getVFSRoot()+"\u0000").getBytes("UTF8");
+        CRunTime.memcpy(buffer, data, 0, data.length);
+    }
+    public static void getDoomCommandLine(int buffer)
+    {
+        String cmdline = "";
+        try
+        {
+            FileInputStream fins = new FileInputStream(System.getProperty("bluray.vfs.root")+"/cmdline.txt");
+            int c;
+            while((c = fins.read()) >= 0)
+                cmdline += (char)c;
+        }
+        catch(IOException e){}
+        int l = cmdline.length();
+        cmdline = cmdline.substring(0, (l<255?l:255))+"\u0000";
+        byte[] data = null;
+        try
+        {
+            data = cmdline.getBytes("UTF8");
+        }
+        catch(UnsupportedEncodingException e){}
         CRunTime.memcpy(buffer, data, 0, data.length);
     }
 }

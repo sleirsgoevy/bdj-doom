@@ -1,6 +1,7 @@
 #include <org/homebrew.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stddef.h>
 #include <assert.h>
 
@@ -36,57 +37,31 @@ int main()
     fprintf(stdout, "test stdout\n");
     fprintf(stderr, "test stderr\n");
     printf("test printf\n");
-    char* doom_argv[] = {"doom", NULL};
-    Helper_main(1, doom_argv);
-    //double h0 = sqrt(576*576+324*324);
-    int q = 0;
-    int color_change_speed = 0;
-    for(;;)
-    {
-        int key;
-        while((key = NOPH_MyXlet_pollInput()))
-            switch(key)
-            {
-            case 37: // left arrow
-            case -39:
-                color_change_speed = (color_change_speed + 767) % 768;
-                break;
-            case 39: // right arrow
-            case -37:
-                color_change_speed = (color_change_speed + 1) % 768;
-                break;
-            }
-        q = (q + color_change_speed) % 768;
-        int qr, qg, qb;
-        if(q < 256)
+    char doom_args[256];
+    NOPH_MyXlet_getDoomCommandLine(doom_args);
+    int l = strlen(doom_args);
+    if(doom_args[l-1] == '\n')
+        doom_args[--l] = 0;
+    if(doom_args[l-1] == '\r')
+        doom_args[--l] = 0;
+    int doom_argc = 1;
+    for(int i = 0; doom_args[i]; i++)
+        if(doom_args[i] == ' ')
+            doom_argc++;
+    char** doom_argv = malloc(sizeof(char*)*(doom_argc+1));
+    *doom_argv++ = doom_args;
+    for(int i = 0; doom_args[i]; i++)
+        if(doom_args[i] == ' ')
         {
-            qr = 256 - q;
-            qg = q;
-            qb = 0;
+            *doom_argv++ = doom_args + i + 1;
+            doom_args[i] = 0;
         }
-        else if(q < 512)
-        {
-            qr = 0;
-            qg = 512 - q;
-            qb = q - 256;
-        }
-        else
-        {
-            qr = q - 512;
-            qg = 0;
-            qb = 768 - q;
-        }
-        for(int y = 0; y < 324; y++)
-            for(int x = 0; x < 576; x++)
-            {
-                //double qd = sqrt(y*y+x*x);
-                data[y*576+x] = 0xff000000
-                              | (qr*(x+y))/900 << 16
-                              | (qg*(x+y))/900 << 8
-                              | (qb*(x+y))/900;
-            }
-        NOPH_MyXlet_blitFramebuffer(0, 0, 576, 324, data, 576);
-        NOPH_MyXlet_repaint();
-    }
+    *doom_argv = 0;
+    doom_argv -= doom_argc;
+    printf("cmdline:");
+    for(int i = 0; i < doom_argc; i++)
+        printf(" \"%s\"", doom_argv[i]);
+    printf("\n");
+    Helper_main(doom_argc, doom_argv);
     return 0;
 }
