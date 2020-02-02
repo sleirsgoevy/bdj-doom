@@ -12,9 +12,16 @@ public class SocketHelper
     {
         private MyXlet.EventQueue eq;
         private DatagramSocket sock;
-        public NonBlockingSocket(int port) throws java.io.IOException
+        private InetAddress last;
+        private int my_port;
+        public NonBlockingSocket(int port, boolean broadcast) throws java.io.IOException
         {
-            sock = new DatagramSocket(port);
+            this.my_port = port;
+            if(broadcast)
+                sock = new DatagramSocket(port);
+            else
+                sock = new DatagramSocket(port, InetAddress.getByName(getIPAddress(false)));
+            sock.setBroadcast(true);
             eq = new MyXlet.EventQueue();
             start();
         }
@@ -22,8 +29,8 @@ public class SocketHelper
         {
             peer--;
             InetAddress inet_addr;
-            int port = 5029;
-            if(peer < 0 || peer >= peers.size())
+            int port = this.my_port + 1;
+            if(peers == null || peer < 0 || peer >= peers.size())
                 inet_addr = InetAddress.getByName("255.255.255.255");
             else
             {
@@ -41,7 +48,7 @@ public class SocketHelper
                 return cnt;
             }
             catch(IOException e)
-            { 
+            {
                 return -1;
             }
         }
@@ -51,9 +58,11 @@ public class SocketHelper
             if(o == null)
                 return -1;
             DatagramPacket pkt = (DatagramPacket)o;
-            InetAddress inet_addr = pkt.getAddress();
+            InetAddress inet_addr = last = pkt.getAddress();
+            if(inet_addr.getHostAddress().equals(getIPAddress(false)))
+                return -1;
             int i;
-            for(i = 0; i < peers.size(); i++)
+            for(i = 0; peers != null && i < peers.size(); i++)
                 if(peers.get(i).equals(inet_addr))
                     break;
             CRunTime.memory[peer/4] = i + 1;
@@ -85,17 +94,22 @@ public class SocketHelper
                 buf = null;
             }
         }
+        public void regLastPeer(int port) throws java.net.UnknownHostException
+        {
+            registerPeer(last.getHostAddress(), port);
+        }
     }
     private static ArrayList peers;
     private static ArrayList ports;
-    public static int create(int port)
+    public static int create(int port, int broadcast)
     {
         try
         {
-            return CRunTime.registerObject(new NonBlockingSocket(port));
+            return CRunTime.registerObject(new NonBlockingSocket(port, broadcast != 0));
         }
         catch(IOException e)
         {
+            e.printStackTrace(MyXlet.getStdout());
             return -1;
         }
     }
@@ -115,5 +129,70 @@ public class SocketHelper
     public static int recvfrom(int sock, int addr, int cnt, int peer)
     {
         return ((NonBlockingSocket)CRunTime.getRegisteredObject(sock)).recvfrom(addr, cnt, peer);
+    }
+    public static void registerLastPeer(int sock, int port) throws java.net.UnknownHostException
+    {
+        ((NonBlockingSocket)CRunTime.getRegisteredObject(sock)).regLastPeer(port);
+    }
+    public static String getIPAddress(boolean broadcast)
+    {
+        if(broadcast)
+            return "255.255.255.255";
+        try
+        {
+            java.util.Enumeration x = java.net.NetworkInterface.getNetworkInterfaces();
+            while(x.hasMoreElements())
+            {
+                java.net.NetworkInterface ni = (java.net.NetworkInterface)x.nextElement();
+                java.util.Enumeration y = ni.getInetAddresses();
+                while(y.hasMoreElements())
+                {
+                    String addr = ((InetAddress)y.nextElement()).getHostAddress();
+                    if(addr.startsWith("192.168.") || addr.startsWith("172.16.") || addr.startsWith("10."))
+                        return addr;
+                }
+            }
+        }
+        catch(Exception e){}
+        return null;
+    }
+    private static String[] split(String s, char c) //JavaME sucks
+    {
+        int cnt = 1;
+        for(int i = 0; i < s.length(); i++)
+            if(s.charAt(i) == c)
+                cnt++;
+        String[] ans = new String[cnt];
+        ans[0] = "";
+        int i = 0;
+        for(int j = 0; j < s.length(); j++)
+            if(s.charAt(j) == c)
+                ans[++i] = "";
+            else
+                ans[i] += s.charAt(j);
+        return ans;
+    }
+    private static byte[] inet_aton(String s)
+    {
+        String[] arr = split(s, '.');
+        byte[] ans = new byte[arr.length];
+        for(int i = 0; i < arr.length; i++)
+            ans[i] = (byte)(new Integer(arr[i])).intValue();
+        return ans;
+    }
+    public static int getConsolePlayer()
+    {
+        byte[] ip0 = inet_aton(getIPAddress(false));
+        int ans = 0;
+        for(int i = 0; i < peers.size(); i++)
+        {
+            byte[] ip1 = inet_aton(((InetAddress)peers.get(i)).getHostAddress());
+            int diff = 0;
+            for(int j = 0; j < 4 && diff == 0; j++)
+                diff = ip0[j] - ip1[j];
+            if(diff > 0)
+                ans++;
+        }
+        return ans;
     }
 }

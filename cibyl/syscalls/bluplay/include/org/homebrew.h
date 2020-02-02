@@ -45,7 +45,7 @@ void NOPH_PCMPlayer_play(int idx); /* Throws */
 /* network */
 
 // create socket & bind on port
-int NOPH_SocketHelper_create(int port);
+int NOPH_SocketHelper_create(int port, int is_broadcast);
 
 // sendto
 int NOPH_SocketHelper_sendto(int sock, const void* buf, int len, int peer); /* Throws */
@@ -55,6 +55,12 @@ int NOPH_SocketHelper_recvfrom(int sock, void* buf, int len, int* peer);
 
 // register peer
 void NOPH_SocketHelper_registerPeer(char* ip, int port); /* Throws */
+
+// register sender of last received packet
+void NOPH_SocketHelper_registerLastPeer(int sock, int port); /* Throws */
+
+/* This function calculates and returns the consoleplayer for the current peers. It's necessary as the C code knows nothing about IP addresses or so. */
+int NOPH_SocketHelper_getConsolePlayer(void);
 
 // get DOOM command line
 void NOPH_MyXlet_getDoomCommandLine(void* buf);

@@ -34,6 +34,17 @@
 
 
 void I_InitNetwork (void);
+
+//from ipxsetup
+typedef struct
+{
+    int time;
+    short gameid;                       // so multiple games can setup at once
+    short drone;
+    short nodesfound;
+    short nodeswanted;
+} setupdata_t;
+
 void I_NetCmd (void);
 
 

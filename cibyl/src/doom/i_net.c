@@ -34,12 +34,14 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 #include <unistd.h>
 /*#include <netdb.h>
 #include <sys/ioctl.h>*/
+#include <java/lang.h>
 #include <org/homebrew.h>
 
 #include "i_system.h"
 #include "d_event.h"
 #include "d_net.h"
 #include "m_argv.h"
+#include "m_swap.h"
 
 #include "doomstat.h"
 
@@ -104,7 +106,7 @@ int UDPsocket (int port)
     /*if (s<0)
 	I_Error ("can't create socket: %s",strerror(errno));*/
 		
-    return NOPH_SocketHelper_create(port);
+    return NOPH_SocketHelper_create(port, 1);
 }
 
 //
@@ -134,10 +136,16 @@ BindToLocalPort
 //
 void PacketSend (void)
 {
+    static int time = 0;
     int		c;
-    doomdata_t	sw;
+    struct
+    {
+        int t;
+        doomdata_t	sw;
+    } sw;
 				
     // byte swap
+    #define sw sw.sw
     sw.checksum = htonl(netbuffer->checksum);
     sw.player = netbuffer->player;
     sw.retransmitfrom = netbuffer->retransmitfrom;
@@ -154,7 +162,9 @@ void PacketSend (void)
     }
 		
     //printf ("sending %i\n",gametic);		
-    c = NOPH_SocketHelper_sendto(sendsocket, &sw, doomcom->datalength, doomcom->remotenode);
+    #undef sw
+    sw.t = time++;
+    c = NOPH_SocketHelper_sendto(sendsocket, &sw, doomcom->datalength + 4, doomcom->remotenode);
     /*c = sendto (sendsocket , &sw, doomcom->datalength
 		,0,(void *)&sendaddress[doomcom->remotenode]
 		,sizeof(sendaddress[doomcom->remotenode]));*/
@@ -200,8 +210,14 @@ void PacketGet (void)
     /*doomcom->remotenode = -1;
     return;*/
     int i = doomcom->numnodes;
-    doomdata_t		sw;
+    struct
+    {
+        int i;
+        doomdata_t sw;
+    } sw;
     int c = NOPH_SocketHelper_recvfrom(insocket, &sw, sizeof(sw), &i);
+    c -= 4;
+    #define sw sw.sw
 
     if (i == doomcom->numnodes)
     {
@@ -229,6 +245,7 @@ void PacketGet (void)
 	netbuffer->cmds[c].chatchar = sw.cmds[c].chatchar;
 	netbuffer->cmds[c].buttons = sw.cmds[c].buttons;
     }
+    #undef sw
 }
 
 
@@ -308,44 +325,92 @@ void I_InitNetwork (void)
     netget = PacketGet;
     netgame = true;
 
-    // parse player number and host list
-    doomcom->consoleplayer = myargv[i+1][0]-'1';
-
-    doomcom->numnodes = 1;	// this node for sure
-	
-    i++;
-    while (++i < myargc && myargv[i][0] != '-')
+    insocket = UDPsocket (DOOMPORT);
+    sendsocket = insocket;
+    if(myargv[i+1][0] == '?')
     {
-        NOPH_SocketHelper_registerPeer(myargv[i], DOOMPORT);
-	/*sendaddress[doomcom->numnodes].sin_family = AF_INET;
-	sendaddress[doomcom->numnodes].sin_port = htons(DOOMPORT);
-	if (myargv[i][0] == '.')
-	{
-	    sendaddress[doomcom->numnodes].sin_addr.s_addr 
-		= inet_addr (myargv[i]+1);
-	}
-	else
-	{
-	    hostentry = gethostbyname (myargv[i]);
-	    if (!hostentry)
-		I_Error ("gethostbyname: couldn't find %s", myargv[i]);
-	    sendaddress[doomcom->numnodes].sin_addr.s_addr 
-		= *(int *)hostentry->h_addr_list[0];
-	}*/
-	doomcom->numnodes++;
+        fprintf(stderr, "will now look for nodes\n");
+        int numnetnodes = myargv[i+1][1]-'0';
+        void LookForNodes(int);
+        LookForNodes(numnetnodes);
     }
-	
+    else
+    {
+        fprintf(stderr, "fixed setup: '%c' != '?'\n", myargv[i+1][0]);
+        // parse player number and host list
+        doomcom->consoleplayer = myargv[i+1][0]-'1';
+        doomcom->numnodes = 1;	// this node for sure
+        // build message to receive
+        i++;
+        while (++i < myargc && myargv[i][0] != '-')
+        {
+            NOPH_SocketHelper_registerPeer(myargv[i], DOOMPORT);
+    	    doomcom->numnodes++;
+        }
+    }
     doomcom->id = DOOMCOM_ID;
     doomcom->numplayers = doomcom->numnodes;
-    
-    // build message to receive
-    insocket = UDPsocket (DOOMPORT);
-    //BindToLocalPort (insocket,htons(DOOMPORT));
-    //ioctl (insocket, FIONBIO, &trueval);
-
-    sendsocket = insocket;//UDPsocket ();
 }
 
+void LookForNodes(int numnetnodes)
+{
+    int bcast = NOPH_SocketHelper_create(DOOMPORT-1, 0);
+    if(numnetnodes > MAXNETNODES)
+        I_Error("LookForNodes: too many nodes requested");
+    setupdata_t nodesetup[MAXNETNODES], setup;
+    nodesetup[0].time = -1;
+    nodesetup[0].gameid = 0;
+    nodesetup[0].drone = 0;
+    nodesetup[0].nodesfound = 1;
+    nodesetup[0].nodeswanted = numnetnodes;
+    long long oldsec = -1;
+    fprintf(stderr, "looking for other players");
+    for(;;)
+    {
+        int i = 0;
+        while(i < nodesetup[0].nodesfound && nodesetup[i].nodesfound == nodesetup[i].nodeswanted)
+            i++;
+        if(i == nodesetup[0].nodeswanted)
+            break;
+        int peer = nodesetup[0].nodesfound + 1;
+        int len = NOPH_SocketHelper_recvfrom(insocket, &setup, sizeof(setup), &peer);
+        if(len >= 0)
+        {
+            if(len != sizeof(setup))
+                I_Error("LookForNodes: packet of invalid length received");
+            setup.gameid = SHORT(setup.gameid);
+            setup.drone = SHORT(setup.drone);
+            setup.nodesfound = SHORT(setup.nodesfound);
+            setup.nodeswanted = SHORT(setup.nodeswanted);
+            if(setup.time != -1)
+                setup.nodesfound = setup.nodeswanted;
+            if(peer >= nodesetup[0].nodesfound)
+            {
+                if(peer != nodesetup[0].nodesfound)
+                    I_Error("FATAL: LookForNodes: invalid peer");
+                NOPH_SocketHelper_registerLastPeer(insocket, DOOMPORT);
+                nodesetup[0].nodesfound++;
+            }
+            memcpy(nodesetup+peer, &setup, sizeof(setup));
+        }
+        long long newsec = NOPH_System_currentTimeMillis()/1000;
+        if(newsec != oldsec)
+        {
+            fprintf(stderr, ".");
+            oldsec = newsec;
+            setup = nodesetup[0];
+            setup.gameid = SHORT(setup.gameid);
+            setup.drone = SHORT(setup.drone);
+            setup.nodesfound = SHORT(setup.nodesfound);
+            setup.nodeswanted = SHORT(setup.nodeswanted);
+            NOPH_SocketHelper_sendto(bcast, &setup, sizeof(setup), MAXNETNODES+1);
+        }
+        NOPH_MyXlet_repaint();
+    }
+    fprintf(stderr, "\n");
+    doomcom->numnodes = numnetnodes;
+    doomcom->consoleplayer = NOPH_SocketHelper_getConsolePlayer();
+}
 
 void I_NetCmd (void)
 {
