@@ -28,8 +28,8 @@ NOPH_Class_t NOPH_MyXlet_getclass(void);
 NOPH_OutputStream_t NOPH_MyXlet_getStdout(void);
 
 // get the VFS root, prefixed with 'file://'
-int NOPH_MyXlet_strlenVFSRoot(void); /* Throws */
-void NOPH_MyXlet_getVFSRoot(void* buf); /* Throws */
+int NOPH_MyXlet_strlenVFSRoot(int which); /* Throws */
+void NOPH_MyXlet_getVFSRoot(int which, void* buf); /* Throws */
 
 // write `sound.bdmv`-compatible file with this sound effect
 //int NOPH_PCMWriter_writePCM(char* name, void* ptr, int sz);
@@ -64,3 +64,6 @@ int NOPH_SocketHelper_getConsolePlayer(void);
 
 // get DOOM command line
 void NOPH_MyXlet_getDoomCommandLine(void* buf);
+
+// precache & open
+NOPH_InputStream_t NOPH_DVBCachedFile_open(const char* path); /* Throws */

@@ -15,14 +15,14 @@ void Helper_blitScreen(char* screen, char* palette)
     NOPH_MyXlet_repaint();
 }
 
-char* Helper_vfsRoot()
+char* Helper_vfsRoot(int which)
 {
-    static char* ans;
-    if(!ans)
+    static char* ans[2];
+    if(!ans[which])
     {
-        int sz = NOPH_MyXlet_strlenVFSRoot();
-        ans = malloc(sz + 1);
-        NOPH_MyXlet_getVFSRoot(ans);
+        int sz = NOPH_MyXlet_strlenVFSRoot(which);
+        ans[which] = malloc(sz + 1);
+        NOPH_MyXlet_getVFSRoot(which, ans[which]);
     }
-    return ans;
+    return ans[which];
 }

@@ -244,19 +244,28 @@ public class MyXlet implements Xlet, UserEventListener
         }
         return instance.sock;
     }
+    public static String getVFSRoot(int which)
+    {
+        if(which == 0)
+            return "file://"+System.getProperty("dvb.persistent.root")
+                  +"/"+(String)instance.context.getXletProperty("dvb.org.id")
+                  +"/"+(String)instance.context.getXletProperty("dvb.app.id");
+        else if(which == 1)
+            return "dvbfs://"+System.getProperty("bluray.vfs.root")+"/WADS";
+        else
+            throw new RuntimeException("getVFSRoot: unknown which");
+    }
     public static String getVFSRoot()
     {
-        return "file://"+System.getProperty("dvb.persistent.root")
-              +"/"+(String)instance.context.getXletProperty("dvb.org.id")
-              +"/"+(String)instance.context.getXletProperty("dvb.app.id");
+        return getVFSRoot(0);
     }
-    public static int strlenVFSRoot() throws Exception
+    public static int strlenVFSRoot(int which) throws Exception
     {
-        return getVFSRoot().getBytes("UTF8").length;
+        return getVFSRoot(which).getBytes("UTF8").length;
     }
-    public static void getVFSRoot(int buffer) throws Exception
+    public static void getVFSRoot(int which, int buffer) throws Exception
     {
-        byte[] data = (getVFSRoot()+"\u0000").getBytes("UTF8");
+        byte[] data = (getVFSRoot(which)+"\u0000").getBytes("UTF8");
         CRunTime.memcpy(buffer, data, 0, data.length);
     }
     public static void getDoomCommandLine(int buffer)

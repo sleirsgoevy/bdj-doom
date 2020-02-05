@@ -97,6 +97,13 @@ static off_t lseek(int fd, off_t offset, int whence)
     if(offset < 0)
         return -1;
     struct fd* f = (struct fd*)fd;
+    if(!strncmp(f->path, "dvbfs://", 8))
+    {
+        int q = fseek(f->f, offset, 0);
+        if(!q)
+            return -1;
+        return f->offset = offset;
+    }
     if(f->offset > offset)
     {
         fclose(f->f);
