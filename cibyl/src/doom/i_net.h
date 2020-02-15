@@ -44,6 +44,7 @@ typedef struct
     short nodesfound;
     short nodeswanted;
 } setupdata_t;
+void MaybeBroadcast();
 
 void I_NetCmd (void);
 

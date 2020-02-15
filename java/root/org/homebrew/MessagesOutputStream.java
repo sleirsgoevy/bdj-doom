@@ -16,7 +16,7 @@ public class MessagesOutputStream extends OutputStream
         cur = "";
         messages.add(cur);
     }
-    public void write(int c)
+    public synchronized void write(int c)
     {
         if(c == 10)
         {

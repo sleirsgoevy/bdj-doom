@@ -269,6 +269,8 @@ void PacketGet (void)
 }*/
 
 
+static int is_ipx = 0;
+
 //
 // I_InitNetwork
 //
@@ -300,6 +302,14 @@ void I_InitNetwork (void)
     else
 	doomcom-> extratics = 0;
 		
+    p = M_CheckParm("-ipx");
+    if(p && p < myargc - 1)
+    {
+        NOPH_SocketHelper_initIPX(myargv[p+1], atoi(myargv[p+2]));
+        DOOMPORT = 0x869b;
+        is_ipx = 1;
+    }
+
     p = M_CheckParm ("-port");
     if (p && p<myargc-1)
     {
@@ -352,9 +362,23 @@ void I_InitNetwork (void)
     doomcom->numplayers = doomcom->numnodes;
 }
 
+static int CheckBroadcast()
+{
+    static long long oldsec = -1;
+    long long newsec = NOPH_System_currentTimeMillis() / 1000;
+    if(newsec != oldsec)
+    {
+        oldsec = newsec;
+        return 1;
+    }
+    return 0;
+}
+
+static int bcast = -1;
+
 void LookForNodes(int numnetnodes)
 {
-    int bcast = NOPH_SocketHelper_create(DOOMPORT-1, 0);
+    bcast = NOPH_SocketHelper_create((is_ipx?DOOMPORT:DOOMPORT-1), 0);
     if(numnetnodes > MAXNETNODES)
         I_Error("LookForNodes: too many nodes requested");
     setupdata_t nodesetup[MAXNETNODES], setup;
@@ -363,7 +387,6 @@ void LookForNodes(int numnetnodes)
     nodesetup[0].drone = 0;
     nodesetup[0].nodesfound = 1;
     nodesetup[0].nodeswanted = numnetnodes;
-    long long oldsec = -1;
     fprintf(stderr, "looking for other players");
     for(;;)
     {
@@ -376,6 +399,7 @@ void LookForNodes(int numnetnodes)
         int len = NOPH_SocketHelper_recvfrom(insocket, &setup, sizeof(setup), &peer);
         if(len >= 0)
         {
+            printf("pkt recvd %d\n", len);
             if(len != sizeof(setup))
                 I_Error("LookForNodes: packet of invalid length received");
             setup.gameid = SHORT(setup.gameid);
@@ -383,21 +407,26 @@ void LookForNodes(int numnetnodes)
             setup.nodesfound = SHORT(setup.nodesfound);
             setup.nodeswanted = SHORT(setup.nodeswanted);
             if(setup.time != -1)
+            {
+                printf("game pkt\n");
                 setup.nodesfound = setup.nodeswanted;
+            }
+            else
+                printf("setup pkt\n");
             if(peer >= nodesetup[0].nodesfound)
             {
+                printf("%dth node of %d\n", peer, nodesetup[0].nodesfound);
                 if(peer != nodesetup[0].nodesfound)
                     I_Error("FATAL: LookForNodes: invalid peer");
                 NOPH_SocketHelper_registerLastPeer(insocket, DOOMPORT);
                 nodesetup[0].nodesfound++;
             }
             memcpy(nodesetup+peer, &setup, sizeof(setup));
+            printf("now %d of %d nodes\n", nodesetup[0].nodesfound, nodesetup[0].nodeswanted);
         }
-        long long newsec = NOPH_System_currentTimeMillis()/1000;
-        if(newsec != oldsec)
+        if(CheckBroadcast())
         {
-            fprintf(stderr, ".");
-            oldsec = newsec;
+            fputc('.', stderr);
             setup = nodesetup[0];
             setup.gameid = SHORT(setup.gameid);
             setup.drone = SHORT(setup.drone);
@@ -407,9 +436,23 @@ void LookForNodes(int numnetnodes)
         }
         NOPH_MyXlet_repaint();
     }
-    fprintf(stderr, "\n");
+    fputc('\n', stderr);
     doomcom->numnodes = numnetnodes;
     doomcom->consoleplayer = NOPH_SocketHelper_getConsolePlayer();
+}
+
+void MaybeBroadcast()
+{
+    short numnetnodes = doomcom->numnodes;
+    setupdata_t data = {
+        .time = -1,
+        .gameid = 0,
+        .drone = 0,
+        .nodesfound = SHORT(numnetnodes),
+        .nodeswanted = SHORT(numnetnodes)
+    };
+    if(bcast >= 0 && CheckBroadcast())
+        NOPH_SocketHelper_sendto(bcast, &data, sizeof(data), MAXNETNODES+1);
 }
 
 void I_NetCmd (void)

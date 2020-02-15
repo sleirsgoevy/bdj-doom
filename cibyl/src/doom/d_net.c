@@ -31,6 +31,7 @@ static const char rcsid[] = "$Id: d_net.c,v 1.3 1997/02/03 22:01:47 b1 Exp $";
 #include "i_video.h"
 #include "i_net.h"
 #include "g_game.h"
+#include "m_swap.h"
 #include "doomdef.h"
 #include "doomstat.h"
 
@@ -213,15 +214,15 @@ boolean HGetPacket (void)
 
     if (doomcom->datalength != NetbufferSize ())
     {
-	if (debugfile)
-	    fprintf (debugfile,"bad packet length %i\n",doomcom->datalength);
+	//if (debugfile)
+	    fprintf (stderr,"bad packet length %i\n",doomcom->datalength);
 	return false;
     }
 	
     if (NetbufferChecksum () != (netbuffer->checksum&NCMD_CHECKSUM) )
     {
-	if (debugfile)
-	    fprintf (debugfile,"bad packet checksum\n");
+	//if (debugfile)
+	    fprintf (stderr,"bad packet checksum\n");
 	return false;
     }
 
@@ -488,6 +489,7 @@ void D_ArbitrateNetStart (void)
 	while (1)
 	{
 	    CheckAbort ();
+            MaybeBroadcast();
 	    if (!HGetPacket ())
 		continue;
 	    if (netbuffer->checksum & NCMD_SETUP)
@@ -502,6 +504,8 @@ void D_ArbitrateNetStart (void)
 		startepisode = netbuffer->starttic >> 6;
 		return;
 	    }
+            else
+                printf("bogus setup packet!\n");
 	}
     }
     else
