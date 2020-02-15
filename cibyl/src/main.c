@@ -44,10 +44,11 @@ int main()
         doom_args[--l] = 0;
     if(doom_args[l-1] == '\r')
         doom_args[--l] = 0;
-    int doom_argc = 1;
+    int doom_argc = 3;
     for(int i = 0; doom_args[i]; i++)
         if(doom_args[i] == ' ')
             doom_argc++;
+    int real_doom_argc = doom_argc - 2;
     char** doom_argv = malloc(sizeof(char*)*(doom_argc+1));
     *doom_argv++ = doom_args;
     for(int i = 0; doom_args[i]; i++)
@@ -56,12 +57,55 @@ int main()
             *doom_argv++ = doom_args + i + 1;
             doom_args[i] = 0;
         }
+    for(int i = 0; i < 2; i++)
+        *doom_argv++ = 0;
     *doom_argv = 0;
     doom_argv -= doom_argc;
+    char q_buf[3];
+    if(!strcmp(doom_argv[real_doom_argc - 1], "-launcher"))
+    {
+        printf("Select a mode you want to play:\n");
+        printf("* X = singleplayer\n");
+        printf("* [] = LAN multiplayer (UDP broadcast)\n");
+        int key = 0;
+        do
+            key = NOPH_MyXlet_pollInput();
+        while(key != 10 && key != 461);
+        if(key == 10)
+            doom_argv[--real_doom_argc] = 0;
+        else
+        {
+            doom_argv[real_doom_argc-1] = "-net";
+            printf("Select number of players:\n");
+            printf("* LEFT = 2 players\n");
+            printf("* DOWN = 3 players\n");
+            printf("* RIGHT = 4 players\n");
+            do
+                key = NOPH_MyXlet_pollInput();
+            while(key != 37 && key != 40 && key != 39);
+            q_buf[0] = '?';
+            q_buf[2] = 0;
+            if(key == 37)
+                q_buf[1] = '2';
+            else if(key == 40)
+                q_buf[1] = '3';
+            else if(key == 39)
+                q_buf[1] = '4';
+            doom_argv[real_doom_argc++] = q_buf;
+            printf("Select gamemode:\n");
+            printf("* X = cooperative\n");
+            printf("* [] = deathmatch\n");
+            do
+                key = NOPH_MyXlet_pollInput();
+            while(key != 10 && key != 461);
+            if(key == 461)
+                doom_argv[real_doom_argc++] = "-deathmatch";
+        }
+    }
     printf("cmdline:");
-    for(int i = 0; i < doom_argc; i++)
+    for(int i = 0; i < real_doom_argc; i++)
         printf(" \"%s\"", doom_argv[i]);
     printf("\n");
-    Helper_main(doom_argc, doom_argv);
+    Helper_main(real_doom_argc, doom_argv);
     return 0;
 }

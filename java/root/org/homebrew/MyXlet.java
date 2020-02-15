@@ -158,20 +158,23 @@ public class MyXlet implements Xlet, UserEventListener
     {
         if(!this.gui.gui)
         {
+            boolean ret = false;
             if(evt.getType() == HRcEvent.KEY_PRESSED)
             {
+                ret = true;
                 if(evt.getCode() == 38)
                     gui.top -= 800;
                 else if(evt.getCode() == 40)
-                    gui.top += 800; 
+                    gui.top += 800;
+                else
+                    ret = false;
                 scene.repaint();
             }
-            return;
+            if(ret)
+                return;
         }
         if(evt.getType() == HRcEvent.KEY_PRESSED)
-        {
             eq.put(new Integer((int)evt.getCode()));
-        }
         else if(evt.getType() == HRcEvent.KEY_RELEASED)
             eq.put(new Integer(-(int)evt.getCode()));
         // kept as an API reference

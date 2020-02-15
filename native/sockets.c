@@ -1,5 +1,6 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -33,6 +34,12 @@ static in_addr_t getOwnIP(int is_broadcast)
             return ans = addr;
         }
     }
+    exit(1);
+}
+
+int NOPH_SocketHelper_initIPX(char* ip, int port)
+{
+    fprintf(stderr, "IPX is not supported in native build!\n");
     exit(1);
 }
 
@@ -104,7 +111,7 @@ int NOPH_SocketHelper_recvfrom(int sock, void* buf, int len, int* peer)
     int i = 0;
     addr.sin_port = htons(addr.sin_port);
     for(i = 0; i < peern; i++)
-        if(peers[i] == addr.sin_addr.s_addr && ports[i] == addr.sin_port)
+        if(peers[i] == addr.sin_addr.s_addr)
             break;
     i++;
     *peer = i;
