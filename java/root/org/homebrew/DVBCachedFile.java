@@ -15,7 +15,7 @@ public class DVBCachedFile
     private DVBCachedFile(String fname) throws IOException
     {
         length = (int)(new File(fname)).length();
-        img = new DVBBufferedImage(1000, (length + 2999) / 3000);
+        img = new DVBBufferedImage(1000, length / 3000 + 1 /* fix 1000x0 issue */);
         FileInputStream fin = new FileInputStream(fname);
         for(int offset = 0; offset < length; offset += 3000)
         {
