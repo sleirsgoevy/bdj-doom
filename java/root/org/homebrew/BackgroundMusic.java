@@ -13,7 +13,18 @@ public class BackgroundMusic
         byte[] b = new byte[len];
         CRunTime.memcpy(b, 0, ptr, len);
         int handle = ++handle_alloc;
-        by_handle.put(new Integer(handle), new MUSFile(b));
+        while(true)
+        {
+            try
+            {
+                by_handle.put(new Integer(handle), new MUSFile(b));
+                break;
+            }
+            catch(OutOfMemoryError e)
+            {
+                PCMPlayer.flushCache();
+            }
+        }
         return handle;
     }
     public static void unregisterSong(int handle)
