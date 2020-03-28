@@ -14,3 +14,13 @@ int NOPH_SocketHelper_sendto(int sock, void* buf, int sz, int peer);
 int NOPH_SocketHelper_recvfrom(int sock, void* buf, int sz, int* peer);
 void NOPH_SocketHelper_registerLastPeer(int sock, int port);
 int NOPH_SocketHelper_getConsolePlayer();
+
+static int NOPH_BackgroundMusic_registerSong(void* ptr, int sz)
+{
+    return 1;
+}
+static void NOPH_BackgroundMusic_unregisterSong(int handle){}
+static void NOPH_BackgroundMusic_playSong(int handle, int looping){}
+static void NOPH_BackgroundMusic_pauseSong(int handle){}
+static void NOPH_BackgroundMusic_resumeSong(int handle){}
+static void NOPH_BackgroundMusic_stopSong(int handle){}

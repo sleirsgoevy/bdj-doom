@@ -256,6 +256,11 @@ int I_GetEvent(void)
 	event.type = ev_keydown;
 	event.data1 = xlatekey(bdj_event, 1);
 	D_PostEvent(&event);
+        if(event.data1 == KEY_ENTER)
+        {
+          event.data1 = KEY_RSHIFT;
+          D_PostEvent(&event);
+        }
 	// fprintf(stderr, "k");
 	//break;
       }
@@ -265,6 +270,11 @@ int I_GetEvent(void)
 	event.type = ev_keyup;
 	event.data1 = xlatekey(-bdj_event, 0);
 	D_PostEvent(&event);
+        if(event.data1 == KEY_ENTER)
+        {
+          event.data1 = KEY_RSHIFT;
+          D_PostEvent(&event);
+        }
 	// fprintf(stderr, "ku");
 	//break;
       }
