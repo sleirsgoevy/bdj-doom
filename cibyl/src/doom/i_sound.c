@@ -851,27 +851,23 @@ static int	musicdies=-1;
 
 void I_PlaySong(int handle, int looping)
 {
-  // UNUSED.
-  handle = looping = 0;
+  NOPH_BackgroundMusic_playSong(handle, looping);
   musicdies = gametic + TICRATE*30;
 }
 
 void I_PauseSong (int handle)
 {
-  // UNUSED.
-  handle = 0;
+  NOPH_BackgroundMusic_pauseSong(handle);
 }
 
 void I_ResumeSong (int handle)
 {
-  // UNUSED.
-  handle = 0;
+  NOPH_BackgroundMusic_resumeSong(handle);
 }
 
 void I_StopSong(int handle)
 {
-  // UNUSED.
-  handle = 0;
+  NOPH_BackgroundMusic_stopSong(handle);
   
   looping = 0;
   musicdies = 0;
@@ -879,16 +875,15 @@ void I_StopSong(int handle)
 
 void I_UnRegisterSong(int handle)
 {
-  // UNUSED.
-  handle = 0;
+  NOPH_BackgroundMusic_unregisterSong(handle);
 }
 
 int I_RegisterSong(void* data)
 {
-  // UNUSED.
-  data = NULL;
-  
-  return 1;
+  unsigned char* p = (unsigned char*)data;
+  int length = p[4] | p[5] << 8;
+  int start = p[6] | p[7] << 8;
+  return NOPH_BackgroundMusic_registerSong(data, start+length);
 }
 
 // Is the song playing?

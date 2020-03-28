@@ -38,14 +38,32 @@ public class PCMPlayer
             if(!cache.containsKey(iidx))
             {
                 //PCMWriter.writePCM("sound", ((Integer)ptrs.get(idx)).intValue(), ((Integer)szs.get(idx)).intValue());
-                pl = new HSound();
-                pl.set(/*new java.net.URL(MyXlet.getVFSRoot()+"/sound.pcm")*/PCMWriter.writePCM(((Integer)ptrs.get(idx)).intValue(), ((Integer)szs.get(idx)).intValue()));
-                cache.put(iidx, pl);
+                while(true)
+                {
+                    try
+                    {
+                        pl = new HSound();
+                        pl.set(/*new java.net.URL(MyXlet.getVFSRoot()+"/sound.pcm")*/PCMWriter.writePCM(((Integer)ptrs.get(idx)).intValue(), ((Integer)szs.get(idx)).intValue()));
+                        cache.put(iidx, pl);
+                        break;
+                    }
+                    catch(OutOfMemoryError e)
+                    {
+                        cache.clear();
+                    }
+                }
             }
             else
                 pl = (HSound)cache.get(iidx);
         }
         pl.stop();
         pl.play();
+    }
+    public static void flushCache()
+    {
+        synchronized(cache)
+        { 
+            cache.clear();
+        }
     }
 }

@@ -70,3 +70,18 @@ void NOPH_SocketHelper_registerLastPeer(int sock, int port); /* Throws */
 
 /* This function calculates and returns the consoleplayer for the current peers. It's necessary as the C code knows nothing about IP addresses or so. */
 int NOPH_SocketHelper_getConsolePlayer(void);
+
+/* background music */
+
+int NOPH_BackgroundMusic_registerSong(void* data, int length);
+
+// save RAM in case the song is no longer needed
+void NOPH_BackgroundMusic_unregisterSong(int handle);
+
+void NOPH_BackgroundMusic_playSong(int handle, int looping);
+
+void NOPH_BackgroundMusic_pauseSong(int handle);
+
+void NOPH_BackgroundMusic_resumeSong(int handle);
+
+void NOPH_BackgroundMusic_stopSong(int handle);

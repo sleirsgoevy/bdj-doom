@@ -107,6 +107,7 @@ public class MyXlet implements Xlet, UserEventListener
                         gui.gui = false;
                         scene.repaint();
                     }
+                    BackgroundMusic.shutdown(); //stop all music if something went wrong
                 }
             }).start();
         }

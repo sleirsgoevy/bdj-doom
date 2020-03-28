@@ -72,14 +72,14 @@ ticcmd_t*	I_BaseTiccmd(void)
 
 int  I_GetHeapSize (void)
 {
-    return 4500000;//mb_used*1024*1024;
+    return 3500000;//mb_used*1024*1024;
 }
 
 byte* I_ZoneBase (int*	size)
 {
     void test_memory();
     test_memory();
-    *size = 4500000;//mb_used*1024*1024;
+    *size = 3500000;//mb_used*1024*1024;
     byte* ans = (byte *) malloc (*size);
     if(!ans)
         I_Error("I_ZoneBase: malloc failed");
