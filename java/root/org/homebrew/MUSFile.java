@@ -2,112 +2,121 @@ package org.homebrew;
 
 public class MUSFile
 {
+    private static int restart_cnt;
+    private static int volume;
+    static
+    {
+        restart_cnt = 0;
+        volume = 32767;
+    }
     private class PlayingThread extends Thread
     {
         public void run()
         {
             try
             {
-            while(playing)
-            {
-                int[] durations = new int[128];
-                for(int i = 0; i < 128; i++)
-                    durations[i] = -1;
-                int[] depths = new int[128];
-                int[] starts = new int[128];
-                //MyXlet.getStdout().println("precalc durations...");
-                for(int i = 0; i < events.size(); i++)
+                while(playing)
                 {
-                    Event e = (Event)events.get(i);
-                    if(e.is_stop)
+                    int[] durations = new int[128];
+                    for(int i = 0; i < 128; i++)
+                        durations[i] = -1;
+                    int[] depths = new int[128];
+                    int[] starts = new int[128];
+                    //MyXlet.getStdout().println("precalc durations...");
+                    for(int i = 0; i < events.size(); i++)
                     {
-                        if(--depths[e.t.note] == 0)
+                        Event e = (Event)events.get(i);
+                        if(e.is_stop)
                         {
-                            int duration = e.t.stop - starts[e.t.note];
-                            if(duration > durations[e.t.note])
-                                durations[e.t.note] = duration;
-                        }
-                    }
-                    else
-                    {
-                        if(depths[e.t.note]++ == 0)
-                            starts[e.t.note] = e.t.start;
-                    }
-                }
-                //MyXlet.getStdout().println("precalc durations... done");
-                //MyXlet.getStdout().println("allocate HSounds... ");
-                org.havi.ui.HSound[] notes = new org.havi.ui.HSound[128];
-                int total_duration = 0;
-                for(int i = 0; i < 128; i++)
-                    if(durations[i] >= 0)
-                    {
-                        int d = durations[i];
-                        if(d > 2000)
-                            d = 2000;
-                        total_duration += d;
-                        while(true)
-                        {
-                            try
+                            if(--depths[e.t.note] == 0)
                             {
-                                notes[i] = PCMTone.tone(note_freq(i), 48 * d);
-                                break;
-                            }
-                            catch(OutOfMemoryError e)
-                            {
-                                PCMPlayer.flushCache();
+                                int duration = e.t.stop - starts[e.t.note];
+                                if(duration > durations[e.t.note])
+                                    durations[e.t.note] = duration;
                             }
                         }
-                    }
-                //MyXlet.getStdout().println("allocate HSounds... done");
-                for(int i = 0; i < 128; i++)
-                    depths[i] = 0;
-                starts = null;
-                long shift = System.currentTimeMillis() - cur_time;
-                //MyXlet.getStdout().println("playing... ");
-                for(int i = 0; i < events.size() && playing; i++)
-                {
-                    boolean noop = false;
-                    Event e = (Event)events.get(i);
-                    int event_time;
-                    if(e.is_stop)
-                        event_time = e.t.stop;
-                    else
-                    {
-                        event_time = e.t.start;
-                        if(System.currentTimeMillis() >= e.t.stop + shift)
-                            noop = true;
-                    }
-                    while(playing && System.currentTimeMillis() < event_time + shift)
-                        cur_time = System.currentTimeMillis() - shift;
-                    if(!playing)
-                        break;
-                    if(e.is_stop)
-                    {
-                        if(--depths[e.t.note] == 0)
-                            notes[e.t.note].stop();
-                    }
-                    else
-                    {
-                        if(depths[e.t.note]++ == 0 && !noop)
+                        else
                         {
-                            if(durations[e.t.note] > 2000)
-                                notes[e.t.note].loop();
-                            else
-                                notes[e.t.note].play();
+                            if(depths[e.t.note]++ == 0)
+                                starts[e.t.note] = e.t.start;
                         }
                     }
-                    //MyXlet.getStdout().println("playing... "+i+"/"+events.size());
-                }
-                if(!playing)
-                {
+                    //MyXlet.getStdout().println("precalc durations... done");
+                    //MyXlet.getStdout().println("allocate HSounds... ");
+                    org.havi.ui.HSound[] notes = new org.havi.ui.HSound[128];
+                    int total_duration = 0;
+                    int cur_restart = restart_cnt;
+                    for(int i = 0; i < 128 && restart_cnt == cur_restart; i++)
+                        if(durations[i] >= 0)
+                        {
+                            int d = durations[i];
+                            if(d > 2000)
+                                d = 2000;
+                            total_duration += d;
+                            while(true)
+                            {
+                                try
+                                {
+                                    notes[i] = PCMTone.tone(note_freq(i), 48 * d, volume);
+                                    break;
+                                }
+                                catch(OutOfMemoryError e)
+                                {
+                                    PCMPlayer.flushCache();
+                                }
+                            }
+                        }
+                    if(restart_cnt != cur_restart)
+                        continue;
+                    //MyXlet.getStdout().println("allocate HSounds... done");
+                    for(int i = 0; i < 128; i++)
+                        depths[i] = 0;
+                    starts = null;
+                    long shift = System.currentTimeMillis() - cur_time;
+                    //MyXlet.getStdout().println("playing... ");
+                    for(int i = 0; i < events.size() && playing && restart_cnt == cur_restart; i++)
+                    {
+                        boolean noop = false;
+                        Event e = (Event)events.get(i);
+                        int event_time;
+                        if(e.is_stop)
+                            event_time = e.t.stop;
+                        else
+                        {
+                            event_time = e.t.start;
+                            if(System.currentTimeMillis() >= e.t.stop + shift)
+                                noop = true;
+                        }
+                        while(playing && System.currentTimeMillis() < event_time + shift)
+                            cur_time = System.currentTimeMillis() - shift;
+                        if(!playing)
+                            break;
+                        if(e.is_stop)
+                        {
+                            if(--depths[e.t.note] == 0)
+                                notes[e.t.note].stop();
+                        }
+                        else
+                        {
+                            if(depths[e.t.note]++ == 0 && !noop)
+                            {
+                                if(durations[e.t.note] > 2000)
+                                    notes[e.t.note].loop();
+                                else
+                                    notes[e.t.note].play();
+                            }
+                        }
+                        //MyXlet.getStdout().println("playing... "+i+"/"+events.size());
+                    }
                     for(int i = 0; i < 128; i++)
                         if(notes[i] != null)
                             notes[i].stop();
+                    if(restart_cnt != cur_restart)
+                        continue;
+                    if(!looping)
+                        break;
+                    cur_time = 0;
                 }
-                if(!looping)
-                    break;
-                cur_time = 0;
-            }
             }
             catch(Throwable e)
             {
@@ -243,5 +252,10 @@ public class MUSFile
     {
         playing = false;
         pl_t = null;
+    }
+    public static void setVolume(int vol)
+    {
+        volume = vol;
+        restart_cnt++;
     }
 }

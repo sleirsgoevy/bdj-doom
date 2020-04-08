@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class PCMTone
 {
-    public static byte[] writePCM(int freq, int dur)
+    public static byte[] writePCM(int freq, int dur, int volume)
     {
         int sz = dur * 2;
         byte[] buf = new byte[dur * 2 + 56];
@@ -28,21 +28,21 @@ public class PCMTone
         {
             if(((i*2*freq)/48000)%2!=0)
             {
-                buf[2*i+56] = (byte)0xe0;
-                buf[2*i+57] = (byte)0x00;
+                buf[2*i+56] = (byte)((-volume) >> 8);
+                buf[2*i+57] = (byte)(-volume);
             }
             else
             {
-                buf[2*i+56] = (byte)0x20;
-                buf[2*i+57] = (byte)0x00;
+                buf[2*i+56] = (byte)(volume >> 8);
+                buf[2*i+57] = (byte)volume;
             }
         }
         return buf;
     }
-    public static org.havi.ui.HSound tone(int freq, int dur)
+    public static org.havi.ui.HSound tone(int freq, int dur, int volume)
     {
         org.havi.ui.HSound hs = new org.havi.ui.HSound();
-        hs.set(writePCM(freq, dur));
+        hs.set(writePCM(freq, dur, volume));
         return hs;
     }
 }

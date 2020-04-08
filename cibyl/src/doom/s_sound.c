@@ -43,6 +43,7 @@ rcsid[] = "$Id: s_sound.c,v 1.6 1997/02/03 22:45:12 b1 Exp $";
 
 #include "doomstat.h"
 
+#include <org/homebrew.h>
 
 // Purpose?
 const char snd_prefixen[]
@@ -624,6 +625,7 @@ void S_SetMusicVolume(int volume)
     I_SetMusicVolume(127);
     I_SetMusicVolume(volume);
     snd_MusicVolume = volume;
+    NOPH_MUSFile_setVolume(volume * 32767 / 15);
 }
 
 

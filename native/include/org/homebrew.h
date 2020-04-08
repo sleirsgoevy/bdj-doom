@@ -24,3 +24,4 @@ static void NOPH_BackgroundMusic_playSong(int handle, int looping){}
 static void NOPH_BackgroundMusic_pauseSong(int handle){}
 static void NOPH_BackgroundMusic_resumeSong(int handle){}
 static void NOPH_BackgroundMusic_stopSong(int handle){}
+static void NOPH_MUSFile_setVolume(int volume){}

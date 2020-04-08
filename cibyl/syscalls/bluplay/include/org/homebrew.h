@@ -85,3 +85,6 @@ void NOPH_BackgroundMusic_pauseSong(int handle);
 void NOPH_BackgroundMusic_resumeSong(int handle);
 
 void NOPH_BackgroundMusic_stopSong(int handle);
+
+// set music volume
+void NOPH_MUSFile_setVolume(int volume);
